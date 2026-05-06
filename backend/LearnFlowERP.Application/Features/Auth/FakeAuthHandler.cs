@@ -29,8 +29,18 @@ namespace LearnFlowERP.Application.Features.Auth
             new Claim("UserId", "1"),
             new Claim("TenantId", "1"),
 
+            new Claim("Permission", "CreateStudent"),
+            new Claim("Permission", "ViewStudent"),
+            new Claim("Permission", "UpdateStudent"),
+            new Claim("Permission", "DeleteStudent"),
             new Claim("Permission", "CreateUser"),
-            new Claim("Permission", "ViewUser")
+            new Claim("Permission", "ViewUser"),
+            new Claim("Permission", "UpdateUser"),
+            new Claim("Permission", "DeleteUser"),
+            new Claim("Permission", "CreateEmployee"),
+            new Claim("Permission", "ViewEmployee"),
+            new Claim("Permission", "UpdateEmployee"),
+            new Claim("Permission", "DeleteEmployee"),
         };
 
             var identity = new ClaimsIdentity(claims, "Bearer");

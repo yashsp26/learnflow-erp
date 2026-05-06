@@ -58,7 +58,7 @@ namespace LearnFlowERP.Api.Controllers
         public async Task<IActionResult> UpdateAvatar(long id, [FromBody] FileUrlDto dto)
         {
             await _mediator.Send(new UpdateUserAvatarCommand(id, dto.Url));
-            return Ok(Url);
+            return Ok(new { updated = true });
         }
     }
 }

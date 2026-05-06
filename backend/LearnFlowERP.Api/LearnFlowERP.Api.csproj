@@ -6,6 +6,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
 	<TreatWarningsAsErrors>false</TreatWarningsAsErrors>
 	<NoWarn>NU1903</NoWarn>
+    <UserSecretsId>62567a9d-74ce-47d6-a42d-f9d21d63323d</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>

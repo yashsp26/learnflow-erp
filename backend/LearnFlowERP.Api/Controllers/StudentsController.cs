@@ -22,7 +22,7 @@ namespace LearnFlowERP.Api.Controllers
         public async Task<IActionResult> UpdateDocument(long id, [FromBody] FileUrlDto dto)
         {
             await _mediator.Send(new UpdateStudentDocumentCommand(id, dto.Url));
-            return Ok(Url);
+            return Ok(new { updated = true });
         }
     }
 }

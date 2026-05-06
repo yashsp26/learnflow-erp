@@ -23,7 +23,7 @@ namespace LearnFlowERP.Api.Controllers
             await _mediator.Send(
                 new UpdateEmployeeDocumentCommand(id, dto.Url));
 
-            return Ok(Url);
+            return Ok(new { updated = true });
         }
     }
 }   
