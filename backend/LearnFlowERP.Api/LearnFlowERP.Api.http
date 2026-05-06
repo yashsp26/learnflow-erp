@@ -1,0 +1,6 @@
+@LearnFlowERP.Api_HostAddress = http://localhost:5289
+
+GET {{LearnFlowERP.Api_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

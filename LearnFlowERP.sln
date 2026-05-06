@@ -1,0 +1,40 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.12.35506.116
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LearnFlowERP.Api", "backend\LearnFlowERP.Api\LearnFlowERP.Api.csproj", "{74CB9316-9EF6-4454-9231-7AC09B881ECB}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LearnFlowERP.Application", "backend\LearnFlowERP.Application\LearnFlowERP.Application.csproj", "{6C3C1170-4D32-4312-915E-FAE9CB413DC5}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LearnFlowERP.Domain", "backend\LearnFlowERP.Domain\LearnFlowERP.Domain.csproj", "{3CC74AAB-5EFD-42C5-82FB-0A0275EF720D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LearnFlowERP.Infrastructure", "backend\LearnFlowERP.Infrastructure\LearnFlowERP.Infrastructure.csproj", "{CD370799-B14C-469D-9698-E4ED70188621}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{74CB9316-9EF6-4454-9231-7AC09B881ECB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{74CB9316-9EF6-4454-9231-7AC09B881ECB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{74CB9316-9EF6-4454-9231-7AC09B881ECB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{74CB9316-9EF6-4454-9231-7AC09B881ECB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6C3C1170-4D32-4312-915E-FAE9CB413DC5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6C3C1170-4D32-4312-915E-FAE9CB413DC5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6C3C1170-4D32-4312-915E-FAE9CB413DC5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6C3C1170-4D32-4312-915E-FAE9CB413DC5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3CC74AAB-5EFD-42C5-82FB-0A0275EF720D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3CC74AAB-5EFD-42C5-82FB-0A0275EF720D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3CC74AAB-5EFD-42C5-82FB-0A0275EF720D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3CC74AAB-5EFD-42C5-82FB-0A0275EF720D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CD370799-B14C-469D-9698-E4ED70188621}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CD370799-B14C-469D-9698-E4ED70188621}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CD370799-B14C-469D-9698-E4ED70188621}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CD370799-B14C-469D-9698-E4ED70188621}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
