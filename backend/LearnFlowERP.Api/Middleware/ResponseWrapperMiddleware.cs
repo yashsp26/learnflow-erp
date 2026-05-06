@@ -26,7 +26,13 @@ namespace LearnFlowERP.Api.Middleware
                 var correlationId = context.Items["CorrelationId"]?.ToString();
                 var contentType = context.Response.ContentType;
 
-                // 🔥 Skip NON-API routes (Swagger, static, etc.)
+                // if response already started, DO NOT TOUCH
+                if (context.Response.HasStarted)
+                {
+                    return;
+                }
+
+                // Skip NON-API routes
                 if (!context.Request.Path.StartsWithSegments("/api"))
                 {
                     memoryStream.Seek(0, SeekOrigin.Begin);
@@ -34,7 +40,7 @@ namespace LearnFlowERP.Api.Middleware
                     return;
                 }
 
-                // 🔥 Skip true non-JSON responses (files, streams)
+                // Skip non-JSON (files, streams)
                 if (!string.IsNullOrEmpty(contentType) &&
                     (contentType.StartsWith("application/octet-stream") ||
                      contentType.StartsWith("image/") ||
@@ -46,7 +52,7 @@ namespace LearnFlowERP.Api.Middleware
                     return;
                 }
 
-                // 🔥 Skip 204 No Content
+                // Skip 204
                 if (context.Response.StatusCode == StatusCodes.Status204NoContent)
                 {
                     context.Response.Body = originalBodyStream;
@@ -56,7 +62,7 @@ namespace LearnFlowERP.Api.Middleware
                 memoryStream.Seek(0, SeekOrigin.Begin);
                 var bodyText = await new StreamReader(memoryStream).ReadToEndAsync();
 
-                // 🔥 Handle EMPTY response (Ok() with no body)
+                // EMPTY RESPONSE FIX
                 if (string.IsNullOrWhiteSpace(bodyText))
                 {
                     var emptyResponse = new ApiResponse<object>
@@ -77,17 +83,17 @@ namespace LearnFlowERP.Api.Middleware
                 object finalResponse;
                 JsonElement? parsedJson = null;
 
-                // 🔥 SAFE PARSE
+                // SAFE JSON PARSE
                 try
                 {
                     parsedJson = JsonSerializer.Deserialize<JsonElement>(bodyText);
                 }
                 catch
                 {
-                    // Not JSON
+                    // not JSON → fallback
                 }
 
-                // 🔥 Already wrapped
+                // Already wrapped
                 if (parsedJson.HasValue &&
                     parsedJson.Value.ValueKind == JsonValueKind.Object &&
                     parsedJson.Value.TryGetProperty("success", out _))
