@@ -6,7 +6,7 @@ import { useAuth } from "@/context/auth-context";
 
 export function LoginPage() {
   const router = useRouter();
-  const { login, session } = useAuth();
+  const { isAuthReady, login, session } = useAuth();
   const [loginForm, setLoginForm] = useState({
     email: "yashsachinpatil2662@gmail.com",
     password: "1234",
@@ -16,10 +16,10 @@ export function LoginPage() {
   const [isLoggingIn, setIsLoggingIn] = useState(false);
 
   useEffect(() => {
-    if (session) {
+    if (isAuthReady && session) {
       router.push("/dashboard");
     }
-  }, [router, session]);
+  }, [isAuthReady, router, session]);
 
   async function handleLogin(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();

@@ -8,15 +8,15 @@ import { Topbar } from "@/components/layout/Topbar";
 
 export function AppShell({ children }: { children: ReactNode }) {
   const router = useRouter();
-  const { session } = useAuth();
+  const { isAuthReady, session } = useAuth();
 
   useEffect(() => {
-    if (!session) {
+    if (isAuthReady && !session) {
       router.replace("/");
     }
-  }, [router, session]);
+  }, [isAuthReady, router, session]);
 
-  if (!session) {
+  if (!isAuthReady || !session) {
     return null;
   }
 

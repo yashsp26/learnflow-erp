@@ -5,14 +5,23 @@ import {
   ReactNode,
   useContext,
   useMemo,
-  useState,
+  useSyncExternalStore,
 } from "react";
-import { clearSession, getStoredSession, saveSession } from "@/lib/auth-storage";
+import {
+  clearSession,
+  getStoredSessionSnapshot,
+  parseSessionSnapshot,
+  saveSession,
+  subscribeToSession,
+} from "@/lib/auth-storage";
 import { loginUser, logoutUser } from "@/lib/auth-api";
 import type { LoginPayload, Session } from "@/types/auth";
 
+const AUTH_PENDING = "__learnflowerp_auth_pending__";
+
 type AuthContextValue = {
   session: Session | null;
+  isAuthReady: boolean;
   currentUserName: string;
   login: (payload: LoginPayload) => Promise<void>;
   logout: () => Promise<void>;
@@ -21,8 +30,15 @@ type AuthContextValue = {
 const AuthContext = createContext<AuthContextValue | null>(null);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [session, setSession] = useState<Session | null>(() =>
-    getStoredSession(),
+  const sessionSnapshot = useSyncExternalStore(
+    subscribeToSession,
+    getStoredSessionSnapshot,
+    () => AUTH_PENDING,
+  );
+  const isAuthReady = sessionSnapshot !== AUTH_PENDING;
+  const session = useMemo(
+    () => (isAuthReady ? parseSessionSnapshot(sessionSnapshot) : null),
+    [isAuthReady, sessionSnapshot],
   );
 
   const currentUserName = session?.email
@@ -32,12 +48,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const value = useMemo<AuthContextValue>(
     () => ({
       session,
+      isAuthReady,
       currentUserName,
       async login(payload) {
         const nextSession = await loginUser(payload);
 
         saveSession(nextSession);
-        setSession(nextSession);
       },
       async logout() {
         if (session?.token) {
@@ -49,10 +65,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         }
 
         clearSession();
-        setSession(null);
       },
     }),
-    [currentUserName, session],
+    [currentUserName, isAuthReady, session],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
