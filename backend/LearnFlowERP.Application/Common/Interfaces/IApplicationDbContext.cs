@@ -46,6 +46,7 @@ namespace LearnFlowERP.Application.Common.Interfaces
 
 
         DbSet<RefreshToken> RefreshTokens { get; }
+        DbSet<PasswordResetOtp> PasswordResetOtps { get; set; }
 
         // ----------------------------
         // COMMON
