@@ -35,5 +35,28 @@ namespace LearnFlowERP.Api.Controllers
 
             return Ok(url);
         }
+
+        [HttpDelete("delete")]
+        public async Task<IActionResult> Delete([FromQuery] string url)
+        {
+            var deleted = await _fileService.DeleteAsync(url);
+
+            if (!deleted)
+                return BadRequest("Failed to delete file");
+
+            return Ok(new
+            {
+                deleted = true
+            });
+        }
+
+
+        [HttpGet("download")]
+        public async Task<IActionResult> Download([FromQuery] string url)
+        {
+            var stream = await _fileService.DownloadAsync(url);
+
+            return File(stream, "application/octet-stream");
+        }
     }
 }

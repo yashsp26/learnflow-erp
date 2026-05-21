@@ -1,6 +1,8 @@
-﻿using LearnFlowERP.Application.Features.Auth.Commands.Login;
+﻿using LearnFlowERP.Application.Features.Auth.Commands.ForgotPassword;
+using LearnFlowERP.Application.Features.Auth.Commands.Login;
 using LearnFlowERP.Application.Features.Auth.Commands.LogOut;
 using LearnFlowERP.Application.Features.Auth.Commands.RefreshTokenCommands;
+using LearnFlowERP.Application.Features.Auth.Commands.ResetPassword;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
@@ -38,6 +40,28 @@ namespace LearnFlowERP.Api.Controllers
         {
             await _mediator.Send(command);
             return Ok(new { message = "Logged out successfully" });
+        }
+
+        [HttpPost("forgot-password")]
+        public async Task<IActionResult> ForgotPassword(ForgotPasswordCommand command)
+        {
+            await _mediator.Send(command);
+
+            return Ok(new
+            {
+                message = "OTP sent"
+            });
+        }
+
+        [HttpPost("reset-password")]
+        public async Task<IActionResult> ResetPassword(ResetPasswordCommand command)
+        {
+            await _mediator.Send(command);
+
+            return Ok(new
+            {
+                message = "Password updated"
+            });
         }
     }
 }

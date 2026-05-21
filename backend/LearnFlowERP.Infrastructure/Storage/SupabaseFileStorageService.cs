@@ -64,5 +64,23 @@ namespace LearnFlowERP.Infrastructure.Storage
 
             return response.IsSuccessStatusCode;
         }
+
+        public async Task<Stream> DownloadAsync(string fileUrl)
+        {
+            var request = new HttpRequestMessage(HttpMethod.Get, fileUrl);
+
+            request.Headers.Add("apikey", _apiKey);
+            request.Headers.Authorization =
+                new AuthenticationHeaderValue("Bearer", _apiKey);
+
+            var response = await _httpClient.SendAsync(request);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                throw new Exception("Failed to download file");
+            }
+
+            return await response.Content.ReadAsStreamAsync();
+        }
     }
 }

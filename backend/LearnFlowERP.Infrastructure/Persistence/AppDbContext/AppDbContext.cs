@@ -45,6 +45,7 @@ namespace LearnFlowERP.Infrastructure.Persistence.AppDbContext
         public DbSet<RolePermission> RolePermissions => Set<RolePermission>();
 
         public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
+        public DbSet<PasswordResetOtp> PasswordResetOtps { get; set; }
 
         // ----------------------------
         // Model Configuration

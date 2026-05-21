@@ -10,5 +10,6 @@ namespace LearnFlowERP.Application.Common.Interfaces
     {
         Task<string> UploadAsync(Stream fileStream, string fileName, string contentType);
         Task<bool> DeleteAsync(string filePath);
+        Task<Stream> DownloadAsync(string fileUrl);
     }
 }
