@@ -1,5 +1,6 @@
 ﻿using LearnFlowERP.Api.Authorization;
 using LearnFlowERP.Application.Common.Models;
+using LearnFlowERP.Application.Features.Onboarding.Students.Commands.CompleteStudentProfile;
 using LearnFlowERP.Application.Features.Students.Commands.UpdateStudentDocument;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
@@ -16,6 +17,19 @@ namespace LearnFlowERP.Api.Controllers
         {
             _mediator = mediator;
         }
+
+        [HttpPost("student-profile")]
+        public async Task<IActionResult> CompleteStudentProfile(
+            CompleteStudentProfileCommand command)
+        {
+            await _mediator.Send(command);
+
+            return Ok(new
+            {
+                completed = true
+            });
+        }
+
 
         [Permission("UpdateStudent")]
         [HttpPatch("{id}/document")]

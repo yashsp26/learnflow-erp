@@ -41,7 +41,8 @@ namespace LearnFlowERP.Infrastructure.Security
             var claims = new List<Claim>
             {
                 new Claim("UserId", user.UserId.ToString()),
-                new Claim("TenantId", user.TenantId.ToString())
+                new Claim("TenantId", user.TenantId.ToString()),
+                new Claim("UserType", user.UserType.ToString())
             };
 
             claims.AddRange(roles.Select(r => new Claim(ClaimTypes.Role, r)));

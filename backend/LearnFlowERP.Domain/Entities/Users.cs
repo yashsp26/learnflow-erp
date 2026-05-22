@@ -1,9 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
+﻿
+using LearnFlowERP.Domain.Enums;
 namespace LearnFlowERP.Domain.Entities
 {
     public class User : BaseEntity
@@ -14,8 +10,12 @@ namespace LearnFlowERP.Domain.Entities
         public string Email { get; set; } = null!;
         public string PasswordHash { get; set; } = null!;
 
+        public bool ProfileCompleted { get; set; } = false;
+
         public DateTime? DeletedAt { get; set; }
         public string? ProfileImageUrl { get; set; }
+
+        public UserType UserType { get; set; }
 
         // Navigation
         public Tenant Tenant { get; set; } = null!;
