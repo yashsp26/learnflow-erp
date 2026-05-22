@@ -1,8 +1,10 @@
 ﻿using LearnFlowERP.Api.Authorization;
 using LearnFlowERP.Application.Features.Employees.Commands.UpdateEmployeeDocument;
+using LearnFlowERP.Application.Features.Onboarding.Commands.Employees.CompleteEmployeeProfile;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using LearnFlowERP.Application.Common.Models;
+using Microsoft.AspNetCore.Authorization;
 
 namespace LearnFlowERP.Api.Controllers
 {
@@ -14,6 +16,18 @@ namespace LearnFlowERP.Api.Controllers
         public EmployeesController(IMediator mediator)
         {
             _mediator = mediator;
+        }
+
+
+        [HttpPost("complete-profile")]
+        public async Task<IActionResult> CompleteProfile(CompleteEmployeeProfileCommand command)
+        {
+            await _mediator.Send(command);
+
+            return Ok(new
+            {
+                completed = true
+            });
         }
 
         [Permission("UpdateEmployee")]

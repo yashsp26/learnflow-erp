@@ -15,7 +15,7 @@ namespace LearnFlowERP.Application.Features.Users.Commands
         private readonly IEmailService _emailService;
         private readonly IMediator _mediator;
         public CreateUserCommandHandler(
-            IApplicationDbContext context, 
+            IApplicationDbContext context,
             IPasswordHasher hasher,
             ICurrentUserService currentUser,
             IEmailService emailService,
@@ -32,15 +32,19 @@ namespace LearnFlowERP.Application.Features.Users.Commands
             CreateUserCommand request,
             CancellationToken cancellationToken)
         {
+            var tempPassword = Guid.NewGuid()
+                .ToString()[..4];
             var tenantId = _currentUser.TenantId
                 ?? throw new UnauthorizedAccessException("Tenant not found");
             var user = new User
             {
                 Username = request.Username,
                 Email = request.Email,
-                PasswordHash = _hasher.Hash(request.Password),
+                PasswordHash = _hasher.Hash(tempPassword),
                 TenantId = _currentUser.TenantId ?? 0,
-                CreatedBy = _currentUser.UserId
+                CreatedBy = _currentUser.UserId,
+                UserType = request.UserType,
+                ProfileCompleted = false,
             };
 
             user.UserRoles.Add(new UserRole
@@ -53,6 +57,18 @@ namespace LearnFlowERP.Application.Features.Users.Commands
             _context.Users.Add(user);
 
             await _context.SaveChangesAsync(cancellationToken);
+            await _emailService.SendAsync(
+                user.Email,
+                "Your ERP Account",
+                $"""
+                Your account has been created.
+            
+                Email: {user.Email}
+                Password: {tempPassword}
+            
+                Please login and complete your profile.
+                """
+            );
 
             await _mediator.Publish(
                 new UserCreatedEvent(user.Email, user.Username),
