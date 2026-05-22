@@ -35,7 +35,7 @@ namespace LearnFlowERP.Application.Features.Auth.Commands.ForgotPassword
             {
                 Email = request.Email,
                 Otp = otp,
-                ExpiresAt = DateTime.UtcNow.AddMinutes(10),
+                ExpiresAt = DateTime.Now.AddMinutes(10),
                 IsUsed = false
             };
 

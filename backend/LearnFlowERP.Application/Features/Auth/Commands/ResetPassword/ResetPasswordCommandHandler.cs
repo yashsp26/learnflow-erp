@@ -27,7 +27,7 @@ namespace LearnFlowERP.Application.Features.Auth.Commands.ResetPassword
                     x.Email == request.Email &&
                     x.Otp == request.Otp &&
                     !x.IsUsed &&
-                    x.ExpiresAt > DateTime.UtcNow);
+                    x.ExpiresAt > DateTime.Now);
 
             if (otp == null)
                 throw new Exception("Invalid OTP");

@@ -2,10 +2,12 @@
 
 namespace LearnFlowERP.Application.Features.Onboarding.Commands.Employees.CompleteEmployeeProfile
 {
-    public record CompleteEmployeeProfileCommand(
-        string EmpCode,
-        string FirstName,
-        string LastName,
-        string Department
-    ) : IRequest<Unit>;
+    public class CompleteEmployeeProfileCommand : IRequest<Unit>
+    {
+        public string FirstName { get; set; } = null!;
+
+        public string LastName { get; set; } = null!;
+
+        public string Department { get; set; } = null!;
+    }
 }
