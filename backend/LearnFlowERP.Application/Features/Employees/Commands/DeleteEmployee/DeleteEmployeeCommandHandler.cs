@@ -25,7 +25,7 @@ namespace LearnFlowERP.Application.Features.Employees.Commands.DeleteEmployee
                 throw new Exception("Employee not found");
 
             employee.IsActive = false;
-            employee.UpdatedAt = DateTime.UtcNow;
+            employee.UpdatedAt = DateTime.Now;
 
             await _context.SaveChangesAsync(cancellationToken);
 
