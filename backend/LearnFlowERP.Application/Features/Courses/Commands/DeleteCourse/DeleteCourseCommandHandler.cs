@@ -25,7 +25,7 @@ namespace LearnFlowERP.Application.Features.Courses.Commands.DeleteCourse
                 throw new Exception("Course not found");
 
             course.IsActive = false;
-            course.UpdatedAt = DateTime.UtcNow;
+            course.UpdatedAt = DateTime.Now;
 
             await _context.SaveChangesAsync(cancellationToken);
 

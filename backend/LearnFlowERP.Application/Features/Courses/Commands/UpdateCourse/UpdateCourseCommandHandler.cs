@@ -27,7 +27,7 @@ namespace LearnFlowERP.Application.Features.Courses.Commands.UpdateCourse
             course.CourseCode = request.CourseCode;
             course.CourseName = request.CourseName;
             course.Credits = request.Credits;
-            course.UpdatedAt = DateTime.UtcNow;
+            course.UpdatedAt = DateTime.Now;
 
             await _context.SaveChangesAsync(cancellationToken);
 
