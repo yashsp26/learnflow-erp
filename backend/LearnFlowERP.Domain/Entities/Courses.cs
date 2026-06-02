@@ -17,5 +17,9 @@ namespace LearnFlowERP.Domain.Entities
         // Navigation
         public Tenant Tenant { get; set; } = null!;
         public ICollection<StudentCourse> StudentCourses { get; set; } = new List<StudentCourse>();
+        public ICollection<TeacherCourse> TeacherCourses { get; set; }
+    = new List<TeacherCourse>();
+        public ICollection<StudentAttendance> Attendances { get; set; }
+            = new List<StudentAttendance>();
     }
 }

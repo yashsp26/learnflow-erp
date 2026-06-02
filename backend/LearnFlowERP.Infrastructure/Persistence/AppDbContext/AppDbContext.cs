@@ -37,9 +37,12 @@ namespace LearnFlowERP.Infrastructure.Persistence.AppDbContext
         public DbSet<Payment> Payments => Set<Payment>();
 
         public DbSet<Employee> Employees => Set<Employee>();
-        public DbSet<Attendance> Attendances => Set<Attendance>();
-
         public DbSet<AuditLog> AuditLogs => Set<AuditLog>();
+
+        public DbSet<Designation> Designations => Set<Designation>();
+        public DbSet<TeacherCourse> TeacherCourses => Set<TeacherCourse>();
+        public DbSet<StudentAttendance> StudentAttendances => Set<StudentAttendance>();
+        public DbSet<EmployeeAttendance> EmployeeAttendances => Set<EmployeeAttendance>();
 
         public DbSet<Permission> Permissions => Set<Permission>();
         public DbSet<RolePermission> RolePermissions => Set<RolePermission>();
@@ -166,10 +169,53 @@ namespace LearnFlowERP.Infrastructure.Persistence.AppDbContext
                 .WithMany(f => f.Payments)
                 .HasForeignKey(p => p.FeeId);
 
-            modelBuilder.Entity<Attendance>()
-                .HasOne(a => a.Employee)
-                .WithMany(e => e.Attendances)
-                .HasForeignKey(a => a.EmployeeId);
+            modelBuilder.Entity<Employee>()
+                .HasOne(e => e.Designation)
+                .WithMany(d => d.Employees)
+                .HasForeignKey(e => e.DesignationId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<TeacherCourse>()
+                .HasKey(x => new
+                {
+                    x.EmployeeId,
+                    x.CourseId,
+                    x.TenantId
+                });
+
+            modelBuilder.Entity<TeacherCourse>()
+                .HasOne(x => x.Employee)
+                .WithMany(x => x.TeacherCourses)
+                .HasForeignKey(x => x.EmployeeId);
+
+            modelBuilder.Entity<TeacherCourse>()
+                .HasOne(x => x.Course)
+                .WithMany(x => x.TeacherCourses)
+                .HasForeignKey(x => x.CourseId);
+
+            modelBuilder.Entity<StudentAttendance>()
+                .HasOne(x => x.Student)
+                .WithMany(x => x.Attendances)
+                .HasForeignKey(x => x.StudentId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<StudentAttendance>()
+                .HasOne(x => x.Course)
+                .WithMany(x => x.Attendances)
+                .HasForeignKey(x => x.CourseId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<StudentAttendance>()
+                .HasOne(x => x.MarkedByEmployee)
+                .WithMany(x => x.MarkedAttendances)
+                .HasForeignKey(x => x.MarkedByEmployeeId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<EmployeeAttendance>()
+                .HasOne(x => x.Employee)
+                .WithMany(x => x.Attendances)
+                .HasForeignKey(x => x.EmployeeId)
+                .OnDelete(DeleteBehavior.Restrict);
 
             // ============================
             // AUDIT LOG
@@ -266,11 +312,6 @@ namespace LearnFlowERP.Infrastructure.Persistence.AppDbContext
                     _currentUser.TenantId == null ||
                     p.TenantId == _currentUser.TenantId);
 
-            modelBuilder.Entity<Attendance>()
-                .HasQueryFilter(a =>
-                    _currentUser.TenantId == null ||
-                    a.TenantId == _currentUser.TenantId);
-
             modelBuilder.Entity<UserRole>()
                 .HasQueryFilter(ur =>
                     _currentUser.TenantId == null ||
@@ -285,6 +326,26 @@ namespace LearnFlowERP.Infrastructure.Persistence.AppDbContext
                 .HasQueryFilter(a =>
                     _currentUser.TenantId == null ||
                     a.TenantId == _currentUser.TenantId);
+
+            modelBuilder.Entity<TeacherCourse>()
+                .HasQueryFilter(x =>
+                    _currentUser.TenantId == null ||
+                    x.TenantId == _currentUser.TenantId);
+
+            modelBuilder.Entity<StudentAttendance>()
+                .HasQueryFilter(x =>
+                    _currentUser.TenantId == null ||
+                    x.TenantId == _currentUser.TenantId);
+
+            modelBuilder.Entity<EmployeeAttendance>()
+                .HasQueryFilter(x =>
+                    _currentUser.TenantId == null ||
+                    x.TenantId == _currentUser.TenantId);
+
+            modelBuilder.Entity<Designation>()
+                .HasQueryFilter(x =>
+                    _currentUser.TenantId == null ||
+                    x.TenantId == _currentUser.TenantId);
         }
 
         // ============================

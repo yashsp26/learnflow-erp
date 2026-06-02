@@ -20,10 +20,18 @@ namespace LearnFlowERP.Domain.Entities
         public string? Department { get; set; }
         public decimal? Salary { get; set; }
         public string? DocumentUrl { get; set; }
+        public long DesignationId { get; set; }
 
         // Navigation
+        public Designation Designation { get; set; } = null!;
         public Tenant Tenant { get; set; } = null!;
         public User? User { get; set; }
-        public ICollection<Attendance> Attendances { get; set; } = new List<Attendance>();
+
+        public ICollection<TeacherCourse> TeacherCourses { get; set; }
+            = new List<TeacherCourse>();
+        public ICollection<EmployeeAttendance> Attendances { get; set; }
+            = new List<EmployeeAttendance>();
+        public ICollection<StudentAttendance> MarkedAttendances { get; set; }
+            = new List<StudentAttendance>();
     }
 }
