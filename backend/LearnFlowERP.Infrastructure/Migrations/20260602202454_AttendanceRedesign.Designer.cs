@@ -4,6 +4,7 @@ using LearnFlowERP.Infrastructure.Persistence.AppDbContext;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace LearnFlowERP.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260602202454_AttendanceRedesign")]
+    partial class AttendanceRedesign
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -159,7 +162,7 @@ namespace LearnFlowERP.Infrastructure.Migrations
                     b.Property<string>("Department")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<long>("DesignationId")
+                    b.Property<long?>("DesignationId")
                         .HasColumnType("bigint");
 
                     b.Property<string>("DocumentUrl")
@@ -716,8 +719,7 @@ namespace LearnFlowERP.Infrastructure.Migrations
                     b.HasOne("Designation", "Designation")
                         .WithMany("Employees")
                         .HasForeignKey("DesignationId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("LearnFlowERP.Domain.Entities.Tenant", "Tenant")
                         .WithMany("Employees")

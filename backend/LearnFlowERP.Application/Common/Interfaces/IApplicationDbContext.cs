@@ -26,6 +26,8 @@ namespace LearnFlowERP.Application.Common.Interfaces
         DbSet<Student> Students { get; }
         DbSet<Course> Courses { get; }
         DbSet<StudentCourse> StudentCourses { get; }
+        DbSet<StudentAttendance> StudentAttendances { get; }
+
 
         // ----------------------------
         // FINANCE MODULE
@@ -37,7 +39,9 @@ namespace LearnFlowERP.Application.Common.Interfaces
         // EMPLOYEE MODULE
         // ----------------------------
         DbSet<Employee> Employees { get; }
-        DbSet<Attendance> Attendances { get; }
+        DbSet<Designation> Designations { get; }
+        DbSet<TeacherCourse> TeacherCourses { get; }
+        DbSet<EmployeeAttendance> EmployeeAttendances { get; }
 
         // ----------------------------
         // AUDIT

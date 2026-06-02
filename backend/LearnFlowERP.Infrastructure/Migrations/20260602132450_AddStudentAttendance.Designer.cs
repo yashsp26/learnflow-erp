@@ -4,6 +4,7 @@ using LearnFlowERP.Infrastructure.Persistence.AppDbContext;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace LearnFlowERP.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260602132450_AddStudentAttendance")]
+    partial class AddStudentAttendance
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -22,36 +25,40 @@ namespace LearnFlowERP.Infrastructure.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("Designation", b =>
+            modelBuilder.Entity("LearnFlowERP.Domain.Entities.Attendance", b =>
                 {
-                    b.Property<long>("DesignationId")
+                    b.Property<long>("AttendanceId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("bigint");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("DesignationId"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("AttendanceId"));
+
+                    b.Property<DateTime>("AttendanceDate")
+                        .HasColumnType("datetime2");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<long?>("CreatedBy")
+                    b.Property<long?>("EmployeeId")
                         .HasColumnType("bigint");
 
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("Name")
+                    b.Property<string>("Status")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<long?>("StudentId")
+                        .HasColumnType("bigint");
 
                     b.Property<long>("TenantId")
                         .HasColumnType("bigint");
 
-                    b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("datetime2");
+                    b.HasKey("AttendanceId");
 
-                    b.HasKey("DesignationId");
+                    b.HasIndex("EmployeeId");
 
-                    b.ToTable("Designations");
+                    b.HasIndex("StudentId");
+
+                    b.ToTable("Attendances");
                 });
 
             modelBuilder.Entity("LearnFlowERP.Domain.Entities.AuditLog", b =>
@@ -159,9 +166,6 @@ namespace LearnFlowERP.Infrastructure.Migrations
                     b.Property<string>("Department")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<long>("DesignationId")
-                        .HasColumnType("bigint");
-
                     b.Property<string>("DocumentUrl")
                         .HasColumnType("nvarchar(max)");
 
@@ -193,8 +197,6 @@ namespace LearnFlowERP.Infrastructure.Migrations
 
                     b.HasKey("EmployeeId");
 
-                    b.HasIndex("DesignationId");
-
                     b.HasIndex("TenantId");
 
                     b.HasIndex("UserId")
@@ -205,33 +207,6 @@ namespace LearnFlowERP.Infrastructure.Migrations
                         .IsUnique();
 
                     b.ToTable("Employees");
-                });
-
-            modelBuilder.Entity("LearnFlowERP.Domain.Entities.EmployeeAttendance", b =>
-                {
-                    b.Property<long>("EmployeeAttendanceId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("EmployeeAttendanceId"));
-
-                    b.Property<DateTime>("AttendanceDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<long>("EmployeeId")
-                        .HasColumnType("bigint");
-
-                    b.Property<int>("Status")
-                        .HasColumnType("int");
-
-                    b.Property<long>("TenantId")
-                        .HasColumnType("bigint");
-
-                    b.HasKey("EmployeeAttendanceId");
-
-                    b.HasIndex("EmployeeId");
-
-                    b.ToTable("EmployeeAttendances");
                 });
 
             modelBuilder.Entity("LearnFlowERP.Domain.Entities.Fee", b =>
@@ -464,43 +439,6 @@ namespace LearnFlowERP.Infrastructure.Migrations
                     b.ToTable("Students");
                 });
 
-            modelBuilder.Entity("LearnFlowERP.Domain.Entities.StudentAttendance", b =>
-                {
-                    b.Property<long>("StudentAttendanceId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("StudentAttendanceId"));
-
-                    b.Property<DateTime>("AttendanceDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<long>("CourseId")
-                        .HasColumnType("bigint");
-
-                    b.Property<long>("MarkedByEmployeeId")
-                        .HasColumnType("bigint");
-
-                    b.Property<int>("Status")
-                        .HasColumnType("int");
-
-                    b.Property<long>("StudentId")
-                        .HasColumnType("bigint");
-
-                    b.Property<long>("TenantId")
-                        .HasColumnType("bigint");
-
-                    b.HasKey("StudentAttendanceId");
-
-                    b.HasIndex("CourseId");
-
-                    b.HasIndex("MarkedByEmployeeId");
-
-                    b.HasIndex("StudentId");
-
-                    b.ToTable("StudentAttendances");
-                });
-
             modelBuilder.Entity("LearnFlowERP.Domain.Entities.StudentCourse", b =>
                 {
                     b.Property<long>("StudentId")
@@ -523,27 +461,6 @@ namespace LearnFlowERP.Infrastructure.Migrations
                     b.HasIndex("CourseId");
 
                     b.ToTable("StudentCourses");
-                });
-
-            modelBuilder.Entity("LearnFlowERP.Domain.Entities.TeacherCourse", b =>
-                {
-                    b.Property<long>("EmployeeId")
-                        .HasColumnType("bigint");
-
-                    b.Property<long>("CourseId")
-                        .HasColumnType("bigint");
-
-                    b.Property<long>("TenantId")
-                        .HasColumnType("bigint");
-
-                    b.Property<DateTime>("AssignedAt")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("EmployeeId", "CourseId", "TenantId");
-
-                    b.HasIndex("CourseId");
-
-                    b.ToTable("TeacherCourses");
                 });
 
             modelBuilder.Entity("LearnFlowERP.Domain.Entities.Tenant", b =>
@@ -685,6 +602,23 @@ namespace LearnFlowERP.Infrastructure.Migrations
                     b.ToTable("RefreshTokens");
                 });
 
+            modelBuilder.Entity("LearnFlowERP.Domain.Entities.Attendance", b =>
+                {
+                    b.HasOne("LearnFlowERP.Domain.Entities.Employee", "Employee")
+                        .WithMany("Attendances")
+                        .HasForeignKey("EmployeeId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("LearnFlowERP.Domain.Entities.Student", "Student")
+                        .WithMany("Attendances")
+                        .HasForeignKey("StudentId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("Employee");
+
+                    b.Navigation("Student");
+                });
+
             modelBuilder.Entity("LearnFlowERP.Domain.Entities.AuditLog", b =>
                 {
                     b.HasOne("LearnFlowERP.Domain.Entities.Tenant", null)
@@ -713,12 +647,6 @@ namespace LearnFlowERP.Infrastructure.Migrations
 
             modelBuilder.Entity("LearnFlowERP.Domain.Entities.Employee", b =>
                 {
-                    b.HasOne("Designation", "Designation")
-                        .WithMany("Employees")
-                        .HasForeignKey("DesignationId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
                     b.HasOne("LearnFlowERP.Domain.Entities.Tenant", "Tenant")
                         .WithMany("Employees")
                         .HasForeignKey("TenantId")
@@ -730,22 +658,9 @@ namespace LearnFlowERP.Infrastructure.Migrations
                         .HasForeignKey("LearnFlowERP.Domain.Entities.Employee", "UserId")
                         .OnDelete(DeleteBehavior.Restrict);
 
-                    b.Navigation("Designation");
-
                     b.Navigation("Tenant");
 
                     b.Navigation("User");
-                });
-
-            modelBuilder.Entity("LearnFlowERP.Domain.Entities.EmployeeAttendance", b =>
-                {
-                    b.HasOne("LearnFlowERP.Domain.Entities.Employee", "Employee")
-                        .WithMany("Attendances")
-                        .HasForeignKey("EmployeeId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("Employee");
                 });
 
             modelBuilder.Entity("LearnFlowERP.Domain.Entities.Fee", b =>
@@ -807,33 +722,6 @@ namespace LearnFlowERP.Infrastructure.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("LearnFlowERP.Domain.Entities.StudentAttendance", b =>
-                {
-                    b.HasOne("LearnFlowERP.Domain.Entities.Course", "Course")
-                        .WithMany("Attendances")
-                        .HasForeignKey("CourseId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("LearnFlowERP.Domain.Entities.Employee", "MarkedByEmployee")
-                        .WithMany("MarkedAttendances")
-                        .HasForeignKey("MarkedByEmployeeId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("LearnFlowERP.Domain.Entities.Student", "Student")
-                        .WithMany("Attendances")
-                        .HasForeignKey("StudentId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("Course");
-
-                    b.Navigation("MarkedByEmployee");
-
-                    b.Navigation("Student");
-                });
-
             modelBuilder.Entity("LearnFlowERP.Domain.Entities.StudentCourse", b =>
                 {
                     b.HasOne("LearnFlowERP.Domain.Entities.Course", "Course")
@@ -851,25 +739,6 @@ namespace LearnFlowERP.Infrastructure.Migrations
                     b.Navigation("Course");
 
                     b.Navigation("Student");
-                });
-
-            modelBuilder.Entity("LearnFlowERP.Domain.Entities.TeacherCourse", b =>
-                {
-                    b.HasOne("LearnFlowERP.Domain.Entities.Course", "Course")
-                        .WithMany("TeacherCourses")
-                        .HasForeignKey("CourseId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("LearnFlowERP.Domain.Entities.Employee", "Employee")
-                        .WithMany("TeacherCourses")
-                        .HasForeignKey("EmployeeId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Course");
-
-                    b.Navigation("Employee");
                 });
 
             modelBuilder.Entity("LearnFlowERP.Domain.Entities.User", b =>
@@ -911,27 +780,14 @@ namespace LearnFlowERP.Infrastructure.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("Designation", b =>
-                {
-                    b.Navigation("Employees");
-                });
-
             modelBuilder.Entity("LearnFlowERP.Domain.Entities.Course", b =>
                 {
-                    b.Navigation("Attendances");
-
                     b.Navigation("StudentCourses");
-
-                    b.Navigation("TeacherCourses");
                 });
 
             modelBuilder.Entity("LearnFlowERP.Domain.Entities.Employee", b =>
                 {
                     b.Navigation("Attendances");
-
-                    b.Navigation("MarkedAttendances");
-
-                    b.Navigation("TeacherCourses");
                 });
 
             modelBuilder.Entity("LearnFlowERP.Domain.Entities.Fee", b =>
