@@ -51,7 +51,8 @@ namespace LearnFlowERP.Application.Features.Employees.Queries.GetEmployees
                     Department = x.Department,
                     Salary = x.Salary,
                     Email = x.User!.Email,
-                    DocumentUrl = x.DocumentUrl
+                    DocumentUrl = x.DocumentUrl,
+                    DesignationId = x.DesignationId
                 })
                 .ToListAsync(cancellationToken);
 

@@ -36,7 +36,8 @@ namespace LearnFlowERP.Application.Features.Employees.Queries.GetEmployeeById
                 Department = employee.Department,
                 Salary = employee.Salary,
                 Email = employee.User!.Email,
-                DocumentUrl = employee.DocumentUrl
+                DocumentUrl = employee.DocumentUrl,
+                DesignationId = employee.DesignationId
             };
         }
     }
