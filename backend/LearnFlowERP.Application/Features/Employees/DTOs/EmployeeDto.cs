@@ -21,5 +21,7 @@ namespace LearnFlowERP.Application.Features.Employees.DTOs
         public string? Email { get; set; }
 
         public string? DocumentUrl { get; set; }
+
+        public long DesignationId { get; set; }
     }
 }
