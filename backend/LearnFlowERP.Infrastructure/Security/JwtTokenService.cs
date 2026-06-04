@@ -16,12 +16,10 @@ namespace LearnFlowERP.Infrastructure.Security
     public class JwtTokenService : ITokenService
     {
         private readonly IConfiguration _config;
-        private readonly IPermissionCacheService _permissionCache;
 
-        public JwtTokenService(IConfiguration config, IPermissionCacheService permissionCache)
+        public JwtTokenService(IConfiguration config)
         {
             _config = config;
-            _permissionCache = permissionCache;
         }
 
         public async Task<string> GenerateTokenAsync(User user)
@@ -29,34 +27,32 @@ namespace LearnFlowERP.Infrastructure.Security
             var key = new SymmetricSecurityKey(
                 Encoding.UTF8.GetBytes(_config["Jwt:Key"]!));
 
-            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+            var creds = new SigningCredentials(
+                key,
+                SecurityAlgorithms.HmacSha256);
 
-            var roles = user.UserRoles
-                .Select(ur => ur.Role.RoleName)
-                .Distinct()
-                .ToList();
-
-            var permissions = await _permissionCache.GetPermissionsAsync(user);
+            var role =
+                user.UserRoles.FirstOrDefault()
+                ?? throw new Exception("User role not found");
 
             var claims = new List<Claim>
             {
                 new Claim("UserId", user.UserId.ToString()),
                 new Claim("TenantId", user.TenantId.ToString()),
-                new Claim("UserType", user.UserType.ToString())
+                new Claim("UserType", user.UserType.ToString()),
+                new Claim("RoleId", role.RoleId.ToString())
             };
-
-            claims.AddRange(roles.Select(r => new Claim(ClaimTypes.Role, r)));
-            claims.AddRange(permissions.Select(p => new Claim("Permission", p)));
 
             var token = new JwtSecurityToken(
                 issuer: _config["Jwt:Issuer"],
                 audience: _config["Jwt:Audience"],
                 claims: claims,
-                expires: DateTime.Now.AddMinutes(2),
+                expires: DateTime.Now.AddMinutes(15),
                 signingCredentials: creds
             );
 
-            return new JwtSecurityTokenHandler().WriteToken(token);
+            return new JwtSecurityTokenHandler()
+                .WriteToken(token);
         }
 
         public string GenerateRefreshToken()

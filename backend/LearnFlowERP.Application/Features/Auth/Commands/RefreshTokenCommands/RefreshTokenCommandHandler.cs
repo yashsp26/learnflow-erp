@@ -1,18 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Security.Cryptography;
-using System.Text;
-using System.Threading.Tasks;
-using LearnFlowERP.Application.Common.Interfaces;
+﻿using LearnFlowERP.Application.Common.Interfaces;
 using LearnFlowERP.Application.Features.Auth.Commands.DTOs;
+using LearnFlowERP.Domain.Entities;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
 namespace LearnFlowERP.Application.Features.Auth.Commands.RefreshTokenCommands
 {
     public class RefreshTokenCommandHandler
-    : IRequestHandler<RefreshTokenCommand, AuthResponseDto>
+        : IRequestHandler<RefreshTokenCommand, AuthResponseDto>
     {
         private readonly IApplicationDbContext _context;
         private readonly ITokenService _tokenService;
@@ -31,32 +26,39 @@ namespace LearnFlowERP.Application.Features.Auth.Commands.RefreshTokenCommands
         {
             var token = await _context.RefreshTokens
                 .Include(r => r.User)
-                .FirstOrDefaultAsync(r =>
-                    r.Token == request.RefreshToken &&
-                    !r.IsRevoked &&
-                    r.ExpiresAt > DateTime.Now);
+                    .ThenInclude(u => u.UserRoles)
+                .FirstOrDefaultAsync(
+                    r => r.Token == request.RefreshToken
+                      && !r.IsRevoked
+                      && r.ExpiresAt > DateTime.Now,
+                    cancellationToken);
 
             if (token == null)
-                throw new UnauthorizedAccessException("Invalid refresh token");
+                throw new UnauthorizedAccessException(
+                    "Invalid refresh token");
 
-            // rotate token (best practice)
             token.IsRevoked = true;
 
-            var newAccessToken = await _tokenService.GenerateTokenAsync(token.User);
+            var newAccessToken =
+                await _tokenService.GenerateTokenAsync(
+                    token.User);
 
-            var newRefreshToken = _tokenService.GenerateRefreshToken();
+            var newRefreshToken =
+                _tokenService.GenerateRefreshToken();
 
             var refreshTokenEntity = new RefreshToken
             {
                 UserId = token.UserId,
                 TenantId = token.TenantId,
                 Token = newRefreshToken,
-                ExpiresAt = DateTime.Now.AddDays(7)
+                ExpiresAt = DateTime.Now.AddDays(7),
+                IsRevoked = false
             };
 
             _context.RefreshTokens.Add(refreshTokenEntity);
 
-            await _context.SaveChangesAsync(cancellationToken);
+            await _context.SaveChangesAsync(
+                cancellationToken);
 
             return new AuthResponseDto
             {
@@ -68,4 +70,3 @@ namespace LearnFlowERP.Application.Features.Auth.Commands.RefreshTokenCommands
         }
     }
 }
-

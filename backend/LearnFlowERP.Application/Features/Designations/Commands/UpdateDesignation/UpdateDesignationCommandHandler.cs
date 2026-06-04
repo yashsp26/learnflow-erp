@@ -25,7 +25,7 @@ namespace LearnFlowERP.Application.Features.Designations.Commands.UpdateDesignat
                 throw new Exception("Designation not found");
 
             designation.Name = request.Name;
-            designation.UpdatedAt = DateTime.UtcNow;
+            designation.UpdatedAt = DateTime.Now;
 
             await _context.SaveChangesAsync(cancellationToken);
 
