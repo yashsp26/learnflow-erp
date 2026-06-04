@@ -14,11 +14,12 @@ namespace LearnFlowERP.Application.Features.Permissions.Commands.GrantDesignatio
     : IRequestHandler<GrantDesignationPermissionCommand, Unit>
     {
         private readonly IApplicationDbContext _context;
-
+        private readonly IPermissionCacheService _permissionCache;
         public GrantDesignationPermissionCommandHandler(
-            IApplicationDbContext context)
+            IApplicationDbContext context, IPermissionCacheService permissionCache)
         {
             _context = context;
+            _permissionCache = permissionCache;
         }
 
         public async Task<Unit> Handle(
@@ -42,6 +43,9 @@ namespace LearnFlowERP.Application.Features.Permissions.Commands.GrantDesignatio
                 });
 
             await _context.SaveChangesAsync(cancellationToken);
+
+            await _permissionCache
+                .RemoveDesignationUsersPermissionsAsync(request.DesignationId);
 
             return Unit.Value;
         }

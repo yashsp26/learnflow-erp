@@ -8,11 +8,12 @@ namespace LearnFlowERP.Application.Features.Permissions.Commands.RevokeRolePermi
     : IRequestHandler<RevokeRolePermissionCommand, Unit>
     {
         private readonly IApplicationDbContext _context;
-
+        private readonly IPermissionCacheService _permissionCache;
         public RevokeRolePermissionCommandHandler(
-            IApplicationDbContext context)
+            IApplicationDbContext context, IPermissionCacheService permissionCache)
         {
             _context = context;
+            _permissionCache = permissionCache;
         }
 
         public async Task<Unit> Handle(
@@ -31,6 +32,9 @@ namespace LearnFlowERP.Application.Features.Permissions.Commands.RevokeRolePermi
             _context.RolePermissions.Remove(entity);
 
             await _context.SaveChangesAsync(cancellationToken);
+
+            await _permissionCache
+                .RemoveRoleUsersPermissionsAsync(request.RoleId);
 
             return Unit.Value;
         }

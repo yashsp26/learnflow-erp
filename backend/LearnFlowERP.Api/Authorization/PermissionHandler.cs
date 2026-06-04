@@ -18,20 +18,22 @@ namespace LearnFlowERP.Api.Authorization
             AuthorizationHandlerContext context,
             PermissionRequirement requirement)
         {
-            var roleIdClaim =
-                context.User.FindFirst("RoleId");
+            var userIdClaim =
+                context.User.FindFirst("UserId");
 
-            if (roleIdClaim == null)
+            if (userIdClaim == null)
                 return;
 
-            var roleId =
-                long.Parse(roleIdClaim.Value);
+            var userId =
+                long.Parse(userIdClaim.Value);
 
             var permissions =
                 await _permissionCache
-                    .GetPermissionsAsync(roleId);
+                    .GetPermissionsAsync(userId);
 
-            if (permissions.Contains(requirement.Permission))
+            if (permissions.Contains(
+                requirement.Permission,
+                StringComparer.OrdinalIgnoreCase))
             {
                 context.Succeed(requirement);
             }

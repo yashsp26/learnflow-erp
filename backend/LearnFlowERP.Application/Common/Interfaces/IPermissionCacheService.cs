@@ -2,8 +2,14 @@
 {
     public interface IPermissionCacheService
     {
-        Task<List<string>> GetPermissionsAsync(long roleId);
+        Task<List<string>> GetPermissionsAsync(long userId);
 
-        void RemoveRolePermissions(long roleId);
+        void RemoveUserPermissions(long userId);
+        
+
+        // To remove permissions immeadiately after someone revokes them because they may be in cache
+        Task RemoveDesignationUsersPermissionsAsync(long designationId);
+
+        Task RemoveRoleUsersPermissionsAsync(long roleId);
     }
 }

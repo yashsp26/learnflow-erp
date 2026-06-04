@@ -14,11 +14,12 @@ namespace LearnFlowERP.Application.Features.Permissions.Commands.GrantRolePermis
     : IRequestHandler<GrantRolePermissionCommand, Unit>
     {
         private readonly IApplicationDbContext _context;
-
+        private readonly IPermissionCacheService _permissionCache;
         public GrantRolePermissionCommandHandler(
-            IApplicationDbContext context)
+            IApplicationDbContext context, IPermissionCacheService permissionCache)
         {
             _context = context;
+            _permissionCache = permissionCache;
         }
 
         public async Task<Unit> Handle(
@@ -42,6 +43,9 @@ namespace LearnFlowERP.Application.Features.Permissions.Commands.GrantRolePermis
                 });
 
             await _context.SaveChangesAsync(cancellationToken);
+
+            await _permissionCache
+                .RemoveRoleUsersPermissionsAsync(request.RoleId);
 
             return Unit.Value;
         }
