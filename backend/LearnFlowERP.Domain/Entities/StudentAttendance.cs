@@ -18,6 +18,8 @@ namespace LearnFlowERP.Domain.Entities
 
         public AttendanceStatus Status { get; set; }
 
+        public DateTime CreatedAt { get; set; } = DateTime.Now;
+
         public Student Student { get; set; } = null!;
 
         public Course Course { get; set; } = null!;

@@ -48,7 +48,7 @@ namespace LearnFlowERP.Api.Controllers
         }
 
         [Permission("UpdateDesignation")]
-        [HttpPut("{id}")]
+        [HttpPatch("{id}")]
         public async Task<IActionResult> Update(
             long id,
             UpdateDesignationCommand command)

@@ -14,6 +14,8 @@ namespace LearnFlowERP.Domain.Entities
 
         public AttendanceStatus Status { get; set; }
 
+        public DateTime CreatedAt { get; set; } = DateTime.Now;
+
         public Employee Employee { get; set; } = null!;
     }
 }
