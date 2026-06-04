@@ -25,6 +25,8 @@ using Microsoft.AspNetCore.Mvc;
 using Serilog;
 using LearnFlowERP.Api.Http;
 using LearnFlowERP.Infrastructure.Storage;
+using System.Text.Json.Serialization;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -186,9 +188,12 @@ builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBeh
 // JSON Serialization
 builder.Services.Configure<JsonOptions>(options =>
 {
-    options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
-});
+    options.JsonSerializerOptions.PropertyNamingPolicy =
+        JsonNamingPolicy.CamelCase;
 
+    options.JsonSerializerOptions.Converters.Add(
+        new JsonStringEnumConverter());
+});
 
 // Pipeline Behaviors
 builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
