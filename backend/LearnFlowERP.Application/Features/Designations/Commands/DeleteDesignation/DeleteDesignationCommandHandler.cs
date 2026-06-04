@@ -33,7 +33,7 @@ namespace LearnFlowERP.Application.Features.Designations.Commands.DeleteDesignat
                     "Cannot delete designation assigned to employees");
 
             designation.IsActive = false;
-            designation.UpdatedAt = DateTime.UtcNow;
+            designation.UpdatedAt = DateTime.Now;
 
             await _context.SaveChangesAsync(cancellationToken);
 

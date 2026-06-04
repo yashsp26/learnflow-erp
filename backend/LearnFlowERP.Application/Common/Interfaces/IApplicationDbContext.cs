@@ -19,6 +19,7 @@ namespace LearnFlowERP.Application.Common.Interfaces
 
         DbSet<Permission> Permissions { get; }
         DbSet<RolePermission> RolePermissions { get; }
+        DbSet<DesignationPermission> DesignationPermissions { get; }
 
         // ----------------------------
         // STUDENT MODULE

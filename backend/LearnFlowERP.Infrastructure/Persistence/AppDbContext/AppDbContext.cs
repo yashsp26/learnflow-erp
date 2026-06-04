@@ -46,6 +46,7 @@ namespace LearnFlowERP.Infrastructure.Persistence.AppDbContext
 
         public DbSet<Permission> Permissions => Set<Permission>();
         public DbSet<RolePermission> RolePermissions => Set<RolePermission>();
+        public DbSet<DesignationPermission> DesignationPermissions => Set<DesignationPermission>();
 
         public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
         public DbSet<PasswordResetOtp> PasswordResetOtps { get; set; }
@@ -124,6 +125,27 @@ namespace LearnFlowERP.Infrastructure.Persistence.AppDbContext
                 .HasOne(rp => rp.Permission)
                 .WithMany()
                 .HasForeignKey(rp => rp.PermissionId);
+
+            // ============================
+            // DESIGNATION PERMISSION
+            // ============================
+
+            modelBuilder.Entity<DesignationPermission>()
+                .HasKey(x => new
+                {
+                    x.DesignationId,
+                    x.PermissionId
+                });
+
+            modelBuilder.Entity<DesignationPermission>()
+                .HasOne(x => x.Designation)
+                .WithMany(x => x.DesignationPermissions)
+                .HasForeignKey(x => x.DesignationId);
+
+            modelBuilder.Entity<DesignationPermission>()
+                .HasOne(x => x.Permission)
+                .WithMany(x => x.DesignationPermissions)
+                .HasForeignKey(x => x.PermissionId);
 
             // ============================
             // STUDENT COURSE

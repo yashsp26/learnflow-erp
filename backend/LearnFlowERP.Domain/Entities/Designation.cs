@@ -7,4 +7,7 @@ public class Designation : BaseEntity
     public string Name { get; set; } = null!;
 
     public ICollection<Employee> Employees { get; set; } = new List<Employee>();
+
+    public ICollection<DesignationPermission> DesignationPermissions
+    { get; set; } = new List<DesignationPermission>();
 }

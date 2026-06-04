@@ -1,5 +1,6 @@
 ﻿using LearnFlowERP.Application.Common.Interfaces;
 using LearnFlowERP.Application.Features.Auth.Commands.DTOs;
+using LearnFlowERP.Domain.Entities;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
@@ -7,7 +8,7 @@ using Microsoft.Extensions.Caching.Memory;
 namespace LearnFlowERP.Application.Features.Auth.Commands.Login
 {
     public class LoginCommandHandler
-    : IRequestHandler<LoginCommand, AuthResponseDto>
+        : IRequestHandler<LoginCommand, AuthResponseDto>
     {
         private readonly IApplicationDbContext _context;
         private readonly IPasswordHasher _hasher;
@@ -36,36 +37,44 @@ namespace LearnFlowERP.Application.Features.Auth.Commands.Login
                 $"tenant_{request.TenantCode}",
                 async entry =>
                 {
-                    entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(30);
+                    entry.AbsoluteExpirationRelativeToNow =
+                        TimeSpan.FromMinutes(30);
 
                     return await _context.Tenants
                         .AsNoTracking()
-                        .FirstOrDefaultAsync(t => t.Code == request.TenantCode);
+                        .FirstOrDefaultAsync(
+                            t => t.Code == request.TenantCode,
+                            cancellationToken);
                 });
 
             if (tenant == null)
                 throw new Exception("Invalid tenant");
+
             var user = await _context.Users
                 .Include(u => u.UserRoles)
-                    .ThenInclude(ur => ur.Role)
-                        .ThenInclude(r => r.RolePermissions)
-                            .ThenInclude(rp => rp.Permission)
-                .FirstOrDefaultAsync(u =>
-                    u.Email.ToLower() == email &&
-                    u.TenantId == tenant.TenantId);
-
+                .FirstOrDefaultAsync(
+                    u => u.Email.ToLower() == email &&
+                         u.TenantId == tenant.TenantId,
+                    cancellationToken);
 
             if (user == null)
-                throw new UnauthorizedAccessException("Invalid credentials");
+                throw new UnauthorizedAccessException(
+                    "Invalid credentials");
 
-            var isValid = _hasher.Verify(request.Password, user.PasswordHash);
+            var isValid =
+                _hasher.Verify(
+                    request.Password,
+                    user.PasswordHash);
 
             if (!isValid)
-                throw new UnauthorizedAccessException("Invalid credentials");
+                throw new UnauthorizedAccessException(
+                    "Invalid credentials");
 
-            var token = await _tokenService.GenerateTokenAsync(user);
-            
-            var refreshTokenValue = _tokenService.GenerateRefreshToken();
+            var accessToken =
+                await _tokenService.GenerateTokenAsync(user);
+
+            var refreshTokenValue =
+                _tokenService.GenerateRefreshToken();
 
             var refreshToken = new RefreshToken
             {
@@ -77,11 +86,13 @@ namespace LearnFlowERP.Application.Features.Auth.Commands.Login
             };
 
             _context.RefreshTokens.Add(refreshToken);
-            await _context.SaveChangesAsync(cancellationToken);
+
+            await _context.SaveChangesAsync(
+                cancellationToken);
 
             return new AuthResponseDto
             {
-                Token = token,
+                Token = accessToken,
                 RefreshToken = refreshTokenValue,
                 UserId = user.UserId,
                 Email = user.Email

@@ -10,5 +10,12 @@ namespace LearnFlowERP.Domain.Entities
     {
         public long PermissionId { get; set; }
         public string Name { get; set; } = null!;
+
+
+        public ICollection<RolePermission> RolePermissions
+            = new List<RolePermission>();
+
+        public ICollection<DesignationPermission> DesignationPermissions
+            = new List<DesignationPermission>();
     }
 }
