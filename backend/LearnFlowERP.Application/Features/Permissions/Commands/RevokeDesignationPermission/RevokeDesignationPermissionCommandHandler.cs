@@ -8,11 +8,12 @@ namespace LearnFlowERP.Application.Features.Permissions.Commands.RevokeDesignati
         : IRequestHandler<RevokeDesignationPermissionCommand, Unit>
     {
         private readonly IApplicationDbContext _context;
-
+        private readonly IPermissionCacheService _permissionCache;
         public RevokeDesignationPermissionCommandHandler(
-            IApplicationDbContext context)
+            IApplicationDbContext context, IPermissionCacheService permissionCache)
         {
             _context = context;
+            _permissionCache = permissionCache;
         }
 
         public async Task<Unit> Handle(
@@ -32,6 +33,10 @@ namespace LearnFlowERP.Application.Features.Permissions.Commands.RevokeDesignati
             _context.DesignationPermissions.Remove(entity);
 
             await _context.SaveChangesAsync(cancellationToken);
+
+            await _permissionCache
+                .RemoveDesignationUsersPermissionsAsync(
+                    request.DesignationId);
 
             return Unit.Value;
         }
