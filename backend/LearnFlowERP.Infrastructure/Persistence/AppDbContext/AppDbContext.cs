@@ -35,6 +35,10 @@ namespace LearnFlowERP.Infrastructure.Persistence.AppDbContext
 
         public DbSet<Fee> Fees => Set<Fee>();
         public DbSet<Payment> Payments => Set<Payment>();
+        public DbSet<StudentScholarship> StudentScholarships => Set<StudentScholarship>();
+        public DbSet<Refund> Refunds => Set<Refund>();
+        public DbSet<PaymentAudit> PaymentAudits => Set<PaymentAudit>();
+
 
         public DbSet<Employee> Employees => Set<Employee>();
         public DbSet<AuditLog> AuditLogs => Set<AuditLog>();
@@ -191,6 +195,40 @@ namespace LearnFlowERP.Infrastructure.Persistence.AppDbContext
                 .WithMany(f => f.Payments)
                 .HasForeignKey(p => p.FeeId);
 
+            modelBuilder.Entity<StudentScholarship>()
+                .HasOne(x => x.Student)
+                .WithMany()
+                .HasForeignKey(x => x.StudentId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<StudentScholarship>()
+                .HasOne(x => x.Fee)
+                .WithMany(x => x.Scholarships)
+                .HasForeignKey(x => x.FeeId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Refund>()
+                .HasOne(x => x.Payment)
+                .WithMany(x => x.Refunds)
+                .HasForeignKey(x => x.PaymentId);
+
+            modelBuilder.Entity<Refund>()
+                .HasOne(x => x.ApprovedByUser)
+                .WithMany()
+                .HasForeignKey(x => x.ApprovedBy)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<PaymentAudit>()
+                .HasOne(x => x.Payment)
+                .WithMany(x => x.PaymentAudits)
+                .HasForeignKey(x => x.PaymentId);
+
+            modelBuilder.Entity<PaymentAudit>()
+                .HasOne(x => x.ChangedByUser)
+                .WithMany()
+                .HasForeignKey(x => x.ChangedBy)
+                .OnDelete(DeleteBehavior.Restrict);
+
             modelBuilder.Entity<Employee>()
                 .HasOne(e => e.Designation)
                 .WithMany(d => d.Employees)
@@ -279,6 +317,14 @@ namespace LearnFlowERP.Infrastructure.Persistence.AppDbContext
                 .Property(p => p.AmountPaid)
                 .HasPrecision(18, 2);
 
+            modelBuilder.Entity<StudentScholarship>()
+                .Property(x => x.Amount)
+                .HasPrecision(18, 2);
+
+            modelBuilder.Entity<Refund>()
+                .Property(x => x.Amount)
+                .HasPrecision(18, 2);
+
             // ============================
             // INDEXES
             // ============================
@@ -333,6 +379,16 @@ namespace LearnFlowERP.Infrastructure.Persistence.AppDbContext
                 .HasQueryFilter(p =>
                     _currentUser.TenantId == null ||
                     p.TenantId == _currentUser.TenantId);
+
+            modelBuilder.Entity<StudentScholarship>()
+                .HasQueryFilter(x =>
+                    _currentUser.TenantId == null ||
+                    x.TenantId == _currentUser.TenantId);
+
+            modelBuilder.Entity<Refund>()
+                .HasQueryFilter(x =>
+                    _currentUser.TenantId == null ||
+                    x.TenantId == _currentUser.TenantId);
 
             modelBuilder.Entity<UserRole>()
                 .HasQueryFilter(ur =>

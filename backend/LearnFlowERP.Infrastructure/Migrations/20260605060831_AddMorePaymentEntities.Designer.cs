@@ -4,6 +4,7 @@ using LearnFlowERP.Infrastructure.Persistence.AppDbContext;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace LearnFlowERP.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260605060831_AddMorePaymentEntities")]
+    partial class AddMorePaymentEntities
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -286,16 +289,7 @@ namespace LearnFlowERP.Infrastructure.Migrations
                     b.Property<decimal>("LateFeeAmount")
                         .HasColumnType("decimal(18,2)");
 
-                    b.Property<decimal>("OutstandingAmount")
-                        .HasColumnType("decimal(18,2)");
-
                     b.Property<decimal>("PaidAmount")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<decimal>("RefundAmount")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<decimal>("ScholarshipAmount")
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<int>("Status")
@@ -681,9 +675,6 @@ namespace LearnFlowERP.Infrastructure.Migrations
                     b.Property<DateTime?>("EffectiveTo")
                         .HasColumnType("datetime2");
 
-                    b.Property<long>("FeeId")
-                        .HasColumnType("bigint");
-
                     b.Property<bool>("IsActive")
                         .HasColumnType("bit");
 
@@ -698,8 +689,6 @@ namespace LearnFlowERP.Infrastructure.Migrations
                         .HasColumnType("bigint");
 
                     b.HasKey("StudentScholarshipId");
-
-                    b.HasIndex("FeeId");
 
                     b.HasIndex("StudentId");
 
@@ -1091,19 +1080,11 @@ namespace LearnFlowERP.Infrastructure.Migrations
 
             modelBuilder.Entity("LearnFlowERP.Domain.Entities.StudentScholarship", b =>
                 {
-                    b.HasOne("LearnFlowERP.Domain.Entities.Fee", "Fee")
-                        .WithMany("Scholarships")
-                        .HasForeignKey("FeeId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
                     b.HasOne("LearnFlowERP.Domain.Entities.Student", "Student")
                         .WithMany()
                         .HasForeignKey("StudentId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.Navigation("Fee");
 
                     b.Navigation("Student");
                 });
@@ -1194,8 +1175,6 @@ namespace LearnFlowERP.Infrastructure.Migrations
             modelBuilder.Entity("LearnFlowERP.Domain.Entities.Fee", b =>
                 {
                     b.Navigation("Payments");
-
-                    b.Navigation("Scholarships");
                 });
 
             modelBuilder.Entity("LearnFlowERP.Domain.Entities.Payment", b =>

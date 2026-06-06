@@ -35,8 +35,4 @@
     <ProjectReference Include="..\LearnFlowERP.Domain\LearnFlowERP.Domain.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Features\NewFolder\" />
-  </ItemGroup>
-
 </Project>

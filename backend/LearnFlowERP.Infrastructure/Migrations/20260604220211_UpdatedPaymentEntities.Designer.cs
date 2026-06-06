@@ -4,6 +4,7 @@ using LearnFlowERP.Infrastructure.Persistence.AppDbContext;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace LearnFlowERP.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260604220211_UpdatedPaymentEntities")]
+    partial class UpdatedPaymentEntities
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -260,10 +263,6 @@ namespace LearnFlowERP.Infrastructure.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("FeeId"));
 
-                    b.Property<string>("AcademicYear")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
@@ -280,22 +279,7 @@ namespace LearnFlowERP.Infrastructure.Migrations
                     b.Property<bool>("IsActive")
                         .HasColumnType("bit");
 
-                    b.Property<bool>("IsLateFeeApplied")
-                        .HasColumnType("bit");
-
-                    b.Property<decimal>("LateFeeAmount")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<decimal>("OutstandingAmount")
-                        .HasColumnType("decimal(18,2)");
-
                     b.Property<decimal>("PaidAmount")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<decimal>("RefundAmount")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<decimal>("ScholarshipAmount")
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<int>("Status")
@@ -363,17 +347,8 @@ namespace LearnFlowERP.Infrastructure.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<long?>("CreatedBy")
-                        .HasColumnType("bigint");
-
                     b.Property<long>("FeeId")
                         .HasColumnType("bigint");
-
-                    b.Property<string>("Gateway")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("GatewayPaymentId")
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("PaymentDate")
                         .HasColumnType("datetime2");
@@ -385,11 +360,11 @@ namespace LearnFlowERP.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<long?>("RecordedByUserId")
+                        .HasColumnType("bigint");
+
                     b.Property<string>("Remarks")
                         .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("Status")
-                        .HasColumnType("int");
 
                     b.Property<long>("TenantId")
                         .HasColumnType("bigint");
@@ -402,38 +377,6 @@ namespace LearnFlowERP.Infrastructure.Migrations
                     b.HasIndex("FeeId");
 
                     b.ToTable("Payments");
-                });
-
-            modelBuilder.Entity("LearnFlowERP.Domain.Entities.PaymentAudit", b =>
-                {
-                    b.Property<long>("PaymentAuditId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("PaymentAuditId"));
-
-                    b.Property<DateTime>("ChangedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<long?>("ChangedBy")
-                        .HasColumnType("bigint");
-
-                    b.Property<string>("NewStatus")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("OldStatus")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<long>("PaymentId")
-                        .HasColumnType("bigint");
-
-                    b.HasKey("PaymentAuditId");
-
-                    b.HasIndex("ChangedBy");
-
-                    b.HasIndex("PaymentId");
-
-                    b.ToTable("PaymentAudits");
                 });
 
             modelBuilder.Entity("LearnFlowERP.Domain.Entities.Permission", b =>
@@ -451,43 +394,6 @@ namespace LearnFlowERP.Infrastructure.Migrations
                     b.HasKey("PermissionId");
 
                     b.ToTable("Permissions");
-                });
-
-            modelBuilder.Entity("LearnFlowERP.Domain.Entities.Refund", b =>
-                {
-                    b.Property<long>("RefundId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("RefundId"));
-
-                    b.Property<decimal>("Amount")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<long?>("ApprovedBy")
-                        .HasColumnType("bigint");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<long>("PaymentId")
-                        .HasColumnType("bigint");
-
-                    b.Property<string>("Reason")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<long>("TenantId")
-                        .HasColumnType("bigint");
-
-                    b.HasKey("RefundId");
-
-                    b.HasIndex("ApprovedBy");
-
-                    b.HasIndex("PaymentId");
-
-                    b.ToTable("Refunds");
                 });
 
             modelBuilder.Entity("LearnFlowERP.Domain.Entities.Role", b =>
@@ -658,52 +564,6 @@ namespace LearnFlowERP.Infrastructure.Migrations
                     b.HasIndex("CourseId");
 
                     b.ToTable("StudentCourses");
-                });
-
-            modelBuilder.Entity("LearnFlowERP.Domain.Entities.StudentScholarship", b =>
-                {
-                    b.Property<long>("StudentScholarshipId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("StudentScholarshipId"));
-
-                    b.Property<decimal>("Amount")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime>("EffectiveFrom")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime?>("EffectiveTo")
-                        .HasColumnType("datetime2");
-
-                    b.Property<long>("FeeId")
-                        .HasColumnType("bigint");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("ScholarshipName")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<long>("StudentId")
-                        .HasColumnType("bigint");
-
-                    b.Property<long>("TenantId")
-                        .HasColumnType("bigint");
-
-                    b.HasKey("StudentScholarshipId");
-
-                    b.HasIndex("FeeId");
-
-                    b.HasIndex("StudentId");
-
-                    b.ToTable("StudentScholarships");
                 });
 
             modelBuilder.Entity("LearnFlowERP.Domain.Entities.TeacherCourse", b =>
@@ -970,42 +830,6 @@ namespace LearnFlowERP.Infrastructure.Migrations
                     b.Navigation("Fee");
                 });
 
-            modelBuilder.Entity("LearnFlowERP.Domain.Entities.PaymentAudit", b =>
-                {
-                    b.HasOne("LearnFlowERP.Domain.Entities.User", "ChangedByUser")
-                        .WithMany()
-                        .HasForeignKey("ChangedBy")
-                        .OnDelete(DeleteBehavior.Restrict);
-
-                    b.HasOne("LearnFlowERP.Domain.Entities.Payment", "Payment")
-                        .WithMany("PaymentAudits")
-                        .HasForeignKey("PaymentId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("ChangedByUser");
-
-                    b.Navigation("Payment");
-                });
-
-            modelBuilder.Entity("LearnFlowERP.Domain.Entities.Refund", b =>
-                {
-                    b.HasOne("LearnFlowERP.Domain.Entities.User", "ApprovedByUser")
-                        .WithMany()
-                        .HasForeignKey("ApprovedBy")
-                        .OnDelete(DeleteBehavior.Restrict);
-
-                    b.HasOne("LearnFlowERP.Domain.Entities.Payment", "Payment")
-                        .WithMany("Refunds")
-                        .HasForeignKey("PaymentId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("ApprovedByUser");
-
-                    b.Navigation("Payment");
-                });
-
             modelBuilder.Entity("LearnFlowERP.Domain.Entities.RolePermission", b =>
                 {
                     b.HasOne("LearnFlowERP.Domain.Entities.Permission", "Permission")
@@ -1085,25 +909,6 @@ namespace LearnFlowERP.Infrastructure.Migrations
                         .IsRequired();
 
                     b.Navigation("Course");
-
-                    b.Navigation("Student");
-                });
-
-            modelBuilder.Entity("LearnFlowERP.Domain.Entities.StudentScholarship", b =>
-                {
-                    b.HasOne("LearnFlowERP.Domain.Entities.Fee", "Fee")
-                        .WithMany("Scholarships")
-                        .HasForeignKey("FeeId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("LearnFlowERP.Domain.Entities.Student", "Student")
-                        .WithMany()
-                        .HasForeignKey("StudentId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Fee");
 
                     b.Navigation("Student");
                 });
@@ -1194,15 +999,6 @@ namespace LearnFlowERP.Infrastructure.Migrations
             modelBuilder.Entity("LearnFlowERP.Domain.Entities.Fee", b =>
                 {
                     b.Navigation("Payments");
-
-                    b.Navigation("Scholarships");
-                });
-
-            modelBuilder.Entity("LearnFlowERP.Domain.Entities.Payment", b =>
-                {
-                    b.Navigation("PaymentAudits");
-
-                    b.Navigation("Refunds");
                 });
 
             modelBuilder.Entity("LearnFlowERP.Domain.Entities.Permission", b =>
