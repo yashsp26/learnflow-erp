@@ -35,6 +35,9 @@ namespace LearnFlowERP.Application.Common.Interfaces
         // ----------------------------
         DbSet<Fee> Fees { get; }
         DbSet<Payment> Payments { get; }
+        DbSet<StudentScholarship> StudentScholarships { get; }
+        DbSet<Refund> Refunds { get; }
+        DbSet<PaymentAudit> PaymentAudits { get; }
 
         // ----------------------------
         // EMPLOYEE MODULE
