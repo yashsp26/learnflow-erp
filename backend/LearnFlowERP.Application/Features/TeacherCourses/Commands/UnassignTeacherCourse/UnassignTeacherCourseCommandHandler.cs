@@ -1,4 +1,5 @@
-﻿using LearnFlowERP.Application.Common.Interfaces;
+﻿using LearnFlowERP.Application.Common.Exceptions;
+using LearnFlowERP.Application.Common.Interfaces;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
@@ -26,7 +27,7 @@ namespace LearnFlowERP.Application.Features.TeacherCourses.Commands.UnassignTeac
                     cancellationToken);
 
             if (record == null)
-                throw new Exception("Assignment not found");
+                throw new NotFoundException("Assignment not found");
 
             _context.TeacherCourses.Remove(record);
 

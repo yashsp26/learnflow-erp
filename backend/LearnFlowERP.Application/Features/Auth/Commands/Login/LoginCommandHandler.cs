@@ -48,7 +48,7 @@ namespace LearnFlowERP.Application.Features.Auth.Commands.Login
                 });
 
             if (tenant == null)
-                throw new Exception("Invalid tenant");
+                throw new InvalidOperationException("Invalid tenant");
 
             var user = await _context.Users
                 .Include(u => u.UserRoles)

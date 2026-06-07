@@ -1,4 +1,5 @@
-﻿using LearnFlowERP.Application.Common.Interfaces;
+﻿using LearnFlowERP.Application.Common.Exceptions;
+using LearnFlowERP.Application.Common.Interfaces;
 using LearnFlowERP.Application.Features.Courses.DTOs;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -27,7 +28,7 @@ namespace LearnFlowERP.Application.Features.Courses.Queries.GetCourseById
                     cancellationToken);
 
             if (course == null)
-                throw new Exception("Course not found");
+                throw new NotFoundException("Course not found");
 
             return new CourseDto
             {

@@ -321,6 +321,75 @@ namespace LearnFlowERP.Infrastructure.Migrations
                     b.ToTable("Fees");
                 });
 
+            modelBuilder.Entity("LearnFlowERP.Domain.Entities.FeeReminder", b =>
+                {
+                    b.Property<long>("FeeReminderId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("FeeReminderId"));
+
+                    b.Property<int>("Channel")
+                        .HasColumnType("int");
+
+                    b.Property<string>("FailureReason")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<long>("FeeId")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTime>("SentAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.Property<long>("TenantId")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("FeeReminderId");
+
+                    b.HasIndex("FeeId");
+
+                    b.ToTable("FeeReminders");
+                });
+
+            modelBuilder.Entity("LearnFlowERP.Domain.Entities.Notification", b =>
+                {
+                    b.Property<long>("NotificationId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("NotificationId"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Message")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Module")
+                        .HasColumnType("int");
+
+                    b.Property<long?>("ReferenceId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("TenantId")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Type")
+                        .HasColumnType("int");
+
+                    b.HasKey("NotificationId");
+
+                    b.ToTable("Notifications");
+                });
+
             modelBuilder.Entity("LearnFlowERP.Domain.Entities.PasswordResetOtp", b =>
                 {
                     b.Property<long>("PasswordResetOtpId")
@@ -808,6 +877,40 @@ namespace LearnFlowERP.Infrastructure.Migrations
                     b.ToTable("Users");
                 });
 
+            modelBuilder.Entity("LearnFlowERP.Domain.Entities.UserNotification", b =>
+                {
+                    b.Property<long>("UserNotificationId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("UserNotificationId"));
+
+                    b.Property<bool>("IsRead")
+                        .HasColumnType("bit");
+
+                    b.Property<long>("NotificationId")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTime?>("ReadAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<long>("UserId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long?>("UserId1")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("UserNotificationId");
+
+                    b.HasIndex("NotificationId");
+
+                    b.HasIndex("UserId");
+
+                    b.HasIndex("UserId1");
+
+                    b.ToTable("UserNotifications");
+                });
+
             modelBuilder.Entity("LearnFlowERP.Domain.Entities.UserRole", b =>
                 {
                     b.Property<long>("UserId")
@@ -957,6 +1060,17 @@ namespace LearnFlowERP.Infrastructure.Migrations
                         .IsRequired();
 
                     b.Navigation("Student");
+                });
+
+            modelBuilder.Entity("LearnFlowERP.Domain.Entities.FeeReminder", b =>
+                {
+                    b.HasOne("LearnFlowERP.Domain.Entities.Fee", "Fee")
+                        .WithMany()
+                        .HasForeignKey("FeeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Fee");
                 });
 
             modelBuilder.Entity("LearnFlowERP.Domain.Entities.Payment", b =>
@@ -1138,6 +1252,29 @@ namespace LearnFlowERP.Infrastructure.Migrations
                     b.Navigation("Tenant");
                 });
 
+            modelBuilder.Entity("LearnFlowERP.Domain.Entities.UserNotification", b =>
+                {
+                    b.HasOne("LearnFlowERP.Domain.Entities.Notification", "Notification")
+                        .WithMany("UserNotifications")
+                        .HasForeignKey("NotificationId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("LearnFlowERP.Domain.Entities.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("LearnFlowERP.Domain.Entities.User", null)
+                        .WithMany("UserNotifications")
+                        .HasForeignKey("UserId1");
+
+                    b.Navigation("Notification");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("LearnFlowERP.Domain.Entities.UserRole", b =>
                 {
                     b.HasOne("LearnFlowERP.Domain.Entities.Role", "Role")
@@ -1198,6 +1335,11 @@ namespace LearnFlowERP.Infrastructure.Migrations
                     b.Navigation("Scholarships");
                 });
 
+            modelBuilder.Entity("LearnFlowERP.Domain.Entities.Notification", b =>
+                {
+                    b.Navigation("UserNotifications");
+                });
+
             modelBuilder.Entity("LearnFlowERP.Domain.Entities.Payment", b =>
                 {
                     b.Navigation("PaymentAudits");
@@ -1242,6 +1384,8 @@ namespace LearnFlowERP.Infrastructure.Migrations
                     b.Navigation("Employee");
 
                     b.Navigation("Student");
+
+                    b.Navigation("UserNotifications");
 
                     b.Navigation("UserRoles");
                 });

@@ -1,4 +1,5 @@
-﻿using LearnFlowERP.Application.Common.Interfaces;
+﻿using LearnFlowERP.Application.Common.Exceptions;
+using LearnFlowERP.Application.Common.Interfaces;
 using MediatR;
 
 namespace LearnFlowERP.Application.Features.Students.Commands.DeleteStudent
@@ -22,7 +23,7 @@ namespace LearnFlowERP.Application.Features.Students.Commands.DeleteStudent
                 .FindAsync(request.StudentId);
 
             if (student == null)
-                throw new Exception("Student not found");
+                throw new NotFoundException("Student not found");
 
             student.IsActive = false;
 

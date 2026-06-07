@@ -1,4 +1,5 @@
-﻿using LearnFlowERP.Application.Common.Interfaces;
+﻿using LearnFlowERP.Application.Common.Exceptions;
+using LearnFlowERP.Application.Common.Interfaces;
 using LearnFlowERP.Domain.Entities;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -29,7 +30,7 @@ namespace LearnFlowERP.Application.Features.TeacherCourses.Commands.AssignTeache
                     cancellationToken);
 
             if (teacher == null)
-                throw new Exception("Teacher not found");
+                throw new NotFoundException("Teacher not found");
 
             var course = await _context.Courses
                 .FirstOrDefaultAsync(
@@ -37,7 +38,7 @@ namespace LearnFlowERP.Application.Features.TeacherCourses.Commands.AssignTeache
                     cancellationToken);
 
             if (course == null)
-                throw new Exception("Course not found");
+                throw new NotFoundException("Course not found");
 
             var exists = await _context.TeacherCourses
                 .AnyAsync(
@@ -46,7 +47,7 @@ namespace LearnFlowERP.Application.Features.TeacherCourses.Commands.AssignTeache
                     cancellationToken);
 
             if (exists)
-                throw new Exception(
+                throw new DataAlreadyExistsException(
                     "Teacher already assigned to course");
 
             _context.TeacherCourses.Add(

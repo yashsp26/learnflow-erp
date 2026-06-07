@@ -1,4 +1,5 @@
-﻿using LearnFlowERP.Application.Common.Interfaces;
+﻿using LearnFlowERP.Application.Common.Exceptions;
+using LearnFlowERP.Application.Common.Interfaces;
 using LearnFlowERP.Domain.Entities;
 using LearnFlowERP.Domain.Enums;
 using MediatR;
@@ -36,11 +37,11 @@ namespace LearnFlowERP.Application.Features.Onboarding.Commands.Employees.Comple
                     cancellationToken);
 
             if (user == null)
-                throw new Exception("User not found");
+                throw new NotFoundException("User not found");
 
             // 🔥 Ensure correct user type
             if (user.UserType != UserType.Employee)
-                throw new Exception("Invalid user type");
+                throw new InvalidOperationException("Invalid user type");
 
             // 🔥 Prevent duplicate profile creation
             var exists = await _context.Employees
@@ -49,7 +50,7 @@ namespace LearnFlowERP.Application.Features.Onboarding.Commands.Employees.Comple
                     cancellationToken);
 
             if (exists)
-                throw new Exception("Profile already completed");
+                throw new DataAlreadyExistsException("Profile already completed");
 
             var currentYear = DateTime.Now.Year;
 

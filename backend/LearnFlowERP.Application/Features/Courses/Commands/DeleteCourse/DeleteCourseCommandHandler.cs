@@ -1,4 +1,5 @@
-﻿using LearnFlowERP.Application.Common.Interfaces;
+﻿using LearnFlowERP.Application.Common.Exceptions;
+using LearnFlowERP.Application.Common.Interfaces;
 using MediatR;
 
 namespace LearnFlowERP.Application.Features.Courses.Commands.DeleteCourse
@@ -22,7 +23,7 @@ namespace LearnFlowERP.Application.Features.Courses.Commands.DeleteCourse
                 .FindAsync(request.CourseId);
 
             if (course == null)
-                throw new Exception("Course not found");
+                throw new NotFoundException("Course not found");
 
             course.IsActive = false;
             course.UpdatedAt = DateTime.Now;

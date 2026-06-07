@@ -1,4 +1,5 @@
-﻿using LearnFlowERP.Application.Common.Interfaces;
+﻿using LearnFlowERP.Application.Common.Exceptions;
+using LearnFlowERP.Application.Common.Interfaces;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
@@ -26,7 +27,7 @@ namespace LearnFlowERP.Application.Features.StudentCourses.Commands.RemoveStuden
                     cancellationToken);
 
             if (enrollment == null)
-                throw new Exception("Enrollment not found");
+                throw new NotFoundException("Enrollment not found");
 
             _context.StudentCourses.Remove(enrollment);
 

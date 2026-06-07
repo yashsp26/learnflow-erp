@@ -1,4 +1,5 @@
-﻿using LearnFlowERP.Application.Common.Interfaces;
+﻿using LearnFlowERP.Application.Common.Exceptions;
+using LearnFlowERP.Application.Common.Interfaces;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
@@ -26,10 +27,10 @@ namespace LearnFlowERP.Application.Features.Designations.Commands.DeleteDesignat
                     cancellationToken);
 
             if (designation == null)
-                throw new Exception("Designation not found");
+                throw new NotFoundException("Designation not found");
 
             if (designation.Employees.Any())
-                throw new Exception(
+                throw new InvalidOperationException(
                     "Cannot delete designation assigned to employees");
 
             designation.IsActive = false;

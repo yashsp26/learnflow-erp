@@ -1,4 +1,5 @@
-﻿using LearnFlowERP.Application.Common.Interfaces;
+﻿using LearnFlowERP.Application.Common.Exceptions;
+using LearnFlowERP.Application.Common.Interfaces;
 using LearnFlowERP.Application.Features.Onboarding.Students.Commands.CompleteStudentProfile;
 using LearnFlowERP.Domain.Entities;
 using LearnFlowERP.Domain.Enums;
@@ -32,10 +33,10 @@ namespace LearnFlowERP.Application.Features.Onboarding.Students.Commands.Complet
                 .FirstOrDefaultAsync(x => x.UserId == userId);
 
             if (user == null)
-                throw new Exception("User not found");
+                throw new NotFoundException("User not found");
 
             if (user.UserType != UserType.Student)
-                throw new Exception("Invalid user type");
+                throw new InvalidOperationException("Invalid user type");
 
             var currentYear = DateTime.Now.Year;
 

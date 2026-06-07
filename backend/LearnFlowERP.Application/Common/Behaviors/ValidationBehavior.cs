@@ -33,7 +33,7 @@ namespace LearnFlowERP.Application.Common.Behaviors
 
                 if (failures.Any())
                 {
-                    throw new Exception(
+                    throw new InvalidOperationException(
                         string.Join(", ", failures.Select(f => f.ErrorMessage)));
                 }
             }

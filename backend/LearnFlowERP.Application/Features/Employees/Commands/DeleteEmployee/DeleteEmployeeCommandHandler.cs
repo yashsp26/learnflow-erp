@@ -1,4 +1,5 @@
-﻿using LearnFlowERP.Application.Common.Interfaces;
+﻿using LearnFlowERP.Application.Common.Exceptions;
+using LearnFlowERP.Application.Common.Interfaces;
 using MediatR;
 
 namespace LearnFlowERP.Application.Features.Employees.Commands.DeleteEmployee
@@ -22,7 +23,7 @@ namespace LearnFlowERP.Application.Features.Employees.Commands.DeleteEmployee
                 request.EmployeeId);
 
             if (employee == null)
-                throw new Exception("Employee not found");
+                throw new NotFoundException("Employee not found");
 
             employee.IsActive = false;
             employee.UpdatedAt = DateTime.Now;

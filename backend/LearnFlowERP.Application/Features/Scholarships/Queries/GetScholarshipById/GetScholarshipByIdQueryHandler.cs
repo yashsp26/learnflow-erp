@@ -1,4 +1,5 @@
-﻿using LearnFlowERP.Application.Common.Interfaces;
+﻿using LearnFlowERP.Application.Common.Exceptions;
+using LearnFlowERP.Application.Common.Interfaces;
 using LearnFlowERP.Application.Features.Scholarships.DTOs;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -28,7 +29,7 @@ namespace LearnFlowERP.Application.Features.Scholarships.Queries.GetScholarshipB
                         cancellationToken);
 
             if (scholarship == null)
-                throw new Exception("Scholarship not found");
+                throw new NotFoundException("Scholarship not found");
 
             return new ScholarshipDto
             {

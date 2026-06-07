@@ -57,7 +57,7 @@ namespace LearnFlowERP.Infrastructure.Notifications
             if (!response.IsSuccessStatusCode)
             {
                 var error = await response.Content.ReadAsStringAsync();
-                throw new Exception($"Email failed: {error}");
+                throw new InvalidOperationException($"Email failed: {error}");
             }
         }
     }

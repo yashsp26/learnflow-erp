@@ -44,7 +44,7 @@ namespace LearnFlowERP.Infrastructure.Storage
             if (!response.IsSuccessStatusCode)
             {
                 var error = await response.Content.ReadAsStringAsync();
-                throw new Exception($"Upload failed: {error}");
+                throw new InvalidOperationException($"Upload failed: {error}");
             }
 
             return $"{_baseUrl}/storage/v1/object/public/{_bucket}/{path}";

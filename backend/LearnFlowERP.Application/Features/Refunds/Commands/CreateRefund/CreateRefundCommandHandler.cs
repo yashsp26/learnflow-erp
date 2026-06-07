@@ -1,4 +1,5 @@
-﻿using LearnFlowERP.Application.Common.Interfaces;
+﻿using LearnFlowERP.Application.Common.Exceptions;
+using LearnFlowERP.Application.Common.Interfaces;
 using LearnFlowERP.Domain.Entities;
 using LearnFlowERP.Domain.Enums;
 using MediatR;
@@ -31,7 +32,7 @@ namespace LearnFlowERP.Application.Features.Refunds.Commands.CreateRefund
                     cancellationToken);
 
             if (payment == null)
-                throw new Exception("Payment not found");
+                throw new NotFoundException("Payment not found");
 
             var refundedAlready =
                 await _context.Refunds
@@ -42,7 +43,7 @@ namespace LearnFlowERP.Application.Features.Refunds.Commands.CreateRefund
                 payment.AmountPaid - refundedAlready;
 
             if (request.Amount > remainingRefundable)
-                throw new Exception(
+                throw new InvalidOperationException(
                     "Refund exceeds payment amount");
 
             var refund = new Refund

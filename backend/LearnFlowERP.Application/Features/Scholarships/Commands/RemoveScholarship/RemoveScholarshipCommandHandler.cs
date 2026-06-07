@@ -1,4 +1,5 @@
-﻿using LearnFlowERP.Application.Common.Interfaces;
+﻿using LearnFlowERP.Application.Common.Exceptions;
+using LearnFlowERP.Application.Common.Interfaces;
 using LearnFlowERP.Domain.Enums;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -28,7 +29,7 @@ namespace LearnFlowERP.Application.Features.Scholarships.Commands.RemoveScholars
                         cancellationToken);
 
             if (scholarship == null)
-                throw new Exception("Scholarship not found");
+                throw new NotFoundException("Scholarship not found");
 
             if (!scholarship.IsActive)
                 return Unit.Value;

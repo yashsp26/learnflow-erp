@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using LearnFlowERP.Application.Common.Exceptions;
 using LearnFlowERP.Application.Common.Interfaces;
 using LearnFlowERP.Application.Features.Users.Commands.UpdateUserAvatar;
 using MediatR;
@@ -26,7 +27,7 @@ namespace LearnFlowERP.Application.Features.Students.Commands.UpdateStudentDocum
             var student = await _context.Students.FindAsync(request.StudentId);
 
             if (student == null)
-                throw new Exception("Student not found");
+                throw new NotFoundException("Student not found");
 
             student.DocumentUrl = request.DocumentUrl;
 

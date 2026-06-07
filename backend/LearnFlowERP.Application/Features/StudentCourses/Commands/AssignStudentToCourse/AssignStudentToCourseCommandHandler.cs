@@ -1,4 +1,5 @@
-﻿using LearnFlowERP.Application.Common.Interfaces;
+﻿using LearnFlowERP.Application.Common.Exceptions;
+using LearnFlowERP.Application.Common.Interfaces;
 using LearnFlowERP.Domain.Entities;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -30,7 +31,7 @@ namespace LearnFlowERP.Application.Features.StudentCourses.Commands.AssignStuden
                     cancellationToken);
 
             if (exists)
-                throw new Exception(
+                throw new DataAlreadyExistsException(
                     "Student already assigned to course");
 
             var enrollment = new StudentCourse

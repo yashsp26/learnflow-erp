@@ -1,4 +1,5 @@
-﻿using LearnFlowERP.Application.Common.Interfaces;
+﻿using LearnFlowERP.Application.Common.Exceptions;
+using LearnFlowERP.Application.Common.Interfaces;
 using LearnFlowERP.Application.Features.Designations.DTOs;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -27,7 +28,7 @@ namespace LearnFlowERP.Application.Features.Designations.Queries.GetDesignationB
                     cancellationToken);
 
             if (designation == null)
-                throw new Exception("Designation not found");
+                throw new NotFoundException("Designation not found");
 
             return new DesignationDto
             {

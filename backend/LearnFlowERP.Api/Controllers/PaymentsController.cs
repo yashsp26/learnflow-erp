@@ -1,6 +1,8 @@
 ﻿using LearnFlowERP.Api.Authorization;
+using LearnFlowERP.Application.Common.Interfaces;
 using LearnFlowERP.Application.Features.Payments.Commands.CreatePayment;
 using LearnFlowERP.Application.Features.Payments.Queries.GetPaymentById;
+using LearnFlowERP.Application.Features.Payments.Queries.GetReceiptByPaymentId;
 using LearnFlowERP.Application.Features.Payments.Queries.GetStudentPayments;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
@@ -12,10 +14,11 @@ namespace LearnFlowERP.Api.Controllers
     public class PaymentsController : ControllerBase
     {
         private readonly IMediator _mediator;
-
-        public PaymentsController(IMediator mediator)
+        private readonly IReceiptPdfService _pdfService;
+        public PaymentsController(IMediator mediator, IReceiptPdfService pdfService)
         {
             _mediator = mediator;
+            _pdfService = pdfService;
         }
 
         [Permission("CreatePayment")]
@@ -49,6 +52,24 @@ namespace LearnFlowERP.Api.Controllers
             return Ok(
                 await _mediator.Send(
                     new GetStudentPaymentsQuery(studentId)));
+        }
+
+        [Permission("ViewPayment")]
+        [HttpGet("{paymentId}/receipt/pdf")]
+        public async Task<IActionResult> ReceiptPdf(
+    long paymentId)
+        {
+            var receipt =
+                await _mediator.Send(
+                    new GetReceiptByPaymentIdQuery(paymentId));
+
+            var pdf =
+                _pdfService.GenerateReceiptPdf(receipt);
+
+            return File(
+                pdf,
+                "application/pdf",
+                $"Receipt-{receipt.ReceiptNumber}.pdf");
         }
     }
 }

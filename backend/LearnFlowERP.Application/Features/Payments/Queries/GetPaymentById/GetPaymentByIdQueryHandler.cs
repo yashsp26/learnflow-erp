@@ -1,4 +1,5 @@
-﻿using LearnFlowERP.Application.Common.Interfaces;
+﻿using LearnFlowERP.Application.Common.Exceptions;
+using LearnFlowERP.Application.Common.Interfaces;
 using LearnFlowERP.Application.Features.Payments.DTOs;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -26,7 +27,7 @@ namespace LearnFlowERP.Application.Features.Payments.Queries.GetPaymentById
                     cancellationToken);
 
             if (payment == null)
-                throw new Exception("Payment not found");
+                throw new NotFoundException("Payment not found");
 
             return new PaymentDto
             {
