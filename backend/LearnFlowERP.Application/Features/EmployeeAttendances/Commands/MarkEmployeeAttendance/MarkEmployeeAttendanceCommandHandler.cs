@@ -1,4 +1,5 @@
-﻿using LearnFlowERP.Application.Common.Interfaces;
+﻿using LearnFlowERP.Application.Common.Exceptions;
+using LearnFlowERP.Application.Common.Interfaces;
 using LearnFlowERP.Domain.Entities;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -33,7 +34,7 @@ namespace LearnFlowERP.Application.Features.EmployeeAttendances.Commands.MarkEmp
                     cancellationToken);
 
             if (!employeeExists)
-                throw new Exception("Employee not found");
+                throw new NotFoundException("Employee not found");
 
             var alreadyMarked =
                 await _context.EmployeeAttendances
@@ -44,7 +45,7 @@ namespace LearnFlowERP.Application.Features.EmployeeAttendances.Commands.MarkEmp
                         cancellationToken);
 
             if (alreadyMarked)
-                throw new Exception(
+                throw new DataAlreadyExistsException(
                     "Attendance already marked for today");
 
             _context.EmployeeAttendances.Add(

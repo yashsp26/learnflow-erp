@@ -1,4 +1,5 @@
-﻿using LearnFlowERP.Application.Common.Interfaces;
+﻿using LearnFlowERP.Application.Common.Exceptions;
+using LearnFlowERP.Application.Common.Interfaces;
 using LearnFlowERP.Domain.Entities;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -29,7 +30,7 @@ namespace LearnFlowERP.Application.Features.Designations.Commands.CreateDesignat
                     cancellationToken);
 
             if (exists)
-                throw new Exception("Designation already exists");
+                throw new DataAlreadyExistsException("Designation already exists");
 
             var designation = new Designation
             {

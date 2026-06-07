@@ -4,6 +4,7 @@ using LearnFlowERP.Application.Features.Finance.Queries.GetFeeDefaulters;
 using LearnFlowERP.Application.Features.Finance.Queries.GetFinanceDashboard;
 using LearnFlowERP.Application.Features.Finance.Queries.GetMonthlyCollection;
 using LearnFlowERP.Application.Features.Finance.Queries.GetOutstandingFees;
+using LearnFlowERP.Application.Features.Finance.Queries.GetStudentLedger;
 using LearnFlowERP.Application.Features.Finance.Queries.GetStudentStatement;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
@@ -74,6 +75,15 @@ namespace LearnFlowERP.Api.Controllers
             return Ok(
                 await _mediator.Send(
                     new GetStudentStatementQuery(studentId)));
+        }
+
+        [Permission("ViewFinanceStatement")]
+        [HttpGet("student/{studentId}/ledger")]
+        public async Task<IActionResult> Ledger(long studentId)
+        {
+            return Ok(
+                await _mediator.Send(
+                    new GetStudentLedgerQuery(studentId)));
         }
     }
 }

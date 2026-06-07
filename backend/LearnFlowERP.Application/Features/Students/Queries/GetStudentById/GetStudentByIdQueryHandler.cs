@@ -1,4 +1,5 @@
-﻿using LearnFlowERP.Application.Common.Interfaces;
+﻿using LearnFlowERP.Application.Common.Exceptions;
+using LearnFlowERP.Application.Common.Interfaces;
 using LearnFlowERP.Application.Features.Students.DTOs;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -27,7 +28,7 @@ namespace LearnFlowERP.Application.Features.Students.Queries.GetStudentById
                     cancellationToken);
 
             if (student == null)
-                throw new Exception("Student not found");
+                throw new NotFoundException("Student not found");
 
             return new StudentDto
             {

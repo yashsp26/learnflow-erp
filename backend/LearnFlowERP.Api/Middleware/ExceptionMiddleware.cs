@@ -56,6 +56,12 @@ namespace LearnFlowERP.Api.Middleware
                     errorCode = "GEN_400";
                     break;
 
+                case DataAlreadyExistsException:
+                    statusCode = (int)HttpStatusCode.Conflict;
+                    message = ex.Message;
+                    errorCode = "GEN_409";
+                    break;
+
                 default:
                     statusCode = (int)HttpStatusCode.InternalServerError;
                     message = "Something went wrong";

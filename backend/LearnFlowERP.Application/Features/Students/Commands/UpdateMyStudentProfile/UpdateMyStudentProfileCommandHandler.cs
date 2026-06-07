@@ -1,4 +1,5 @@
-﻿using LearnFlowERP.Application.Common.Interfaces;
+﻿using LearnFlowERP.Application.Common.Exceptions;
+using LearnFlowERP.Application.Common.Interfaces;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
@@ -31,7 +32,7 @@ namespace LearnFlowERP.Application.Features.Students.Commands.UpdateMyStudentPro
                     cancellationToken);
 
             if (student == null)
-                throw new Exception("Student profile not found");
+                throw new NotFoundException("Student profile not found");
 
             student.FirstName = request.FirstName;
             student.LastName = request.LastName;

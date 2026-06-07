@@ -1,4 +1,5 @@
-﻿using LearnFlowERP.Application.Common.Interfaces;
+﻿using LearnFlowERP.Application.Common.Exceptions;
+using LearnFlowERP.Application.Common.Interfaces;
 using LearnFlowERP.Application.Features.Refunds.DTOs;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -26,7 +27,7 @@ namespace LearnFlowERP.Application.Features.Refunds.Queries.GetRefundById
                     cancellationToken);
 
             if (refund == null)
-                throw new Exception("Refund not found");
+                throw new NotFoundException("Refund not found");
 
             return new RefundDto
             {

@@ -1,4 +1,5 @@
-﻿using LearnFlowERP.Application.Common.Interfaces;
+﻿using LearnFlowERP.Application.Common.Exceptions;
+using LearnFlowERP.Application.Common.Interfaces;
 using LearnFlowERP.Domain.Entities;
 using LearnFlowERP.Domain.Enums;
 using MediatR;
@@ -30,13 +31,13 @@ namespace LearnFlowERP.Application.Features.Payments.Commands.CreatePayment
                     cancellationToken);
 
             if (fee == null)
-                throw new Exception("Fee not found");
+                throw new NotFoundException("Fee not found");
 
             var pendingAmount =
                 fee.OutstandingAmount;
 
             if (request.AmountPaid > pendingAmount)
-                throw new Exception(
+                throw new InvalidOperationException(
                     "Payment exceeds pending amount");
 
             var receiptNumber =

@@ -1,4 +1,5 @@
-﻿using LearnFlowERP.Application.Common.Interfaces;
+﻿using LearnFlowERP.Application.Common.Exceptions;
+using LearnFlowERP.Application.Common.Interfaces;
 using LearnFlowERP.Application.Features.Employees.DTOs;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -24,7 +25,7 @@ namespace LearnFlowERP.Application.Features.Employees.Queries.GetEmployeeById
                     x => x.EmployeeId == request.EmployeeId && x.IsActive);
 
             if (employee == null)
-                throw new Exception("Employee not found");
+                throw new NotFoundException("Employee not found");
 
             return new EmployeeDto
             {

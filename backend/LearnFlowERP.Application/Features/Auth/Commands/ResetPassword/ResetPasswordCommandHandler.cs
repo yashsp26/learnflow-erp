@@ -1,4 +1,5 @@
-﻿using LearnFlowERP.Application.Common.Interfaces;
+﻿using LearnFlowERP.Application.Common.Exceptions;
+using LearnFlowERP.Application.Common.Interfaces;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
@@ -30,13 +31,13 @@ namespace LearnFlowERP.Application.Features.Auth.Commands.ResetPassword
                     x.ExpiresAt > DateTime.Now);
 
             if (otp == null)
-                throw new Exception("Invalid OTP");
+                throw new NotFoundException("Invalid OTP");
 
             var user = await _context.Users
                 .FirstOrDefaultAsync(x => x.Email == request.Email);
 
             if (user == null)
-                throw new Exception("User not found");
+                throw new NotFoundException("User not found");
 
             user.PasswordHash = _hasher.Hash(request.NewPassword);
 

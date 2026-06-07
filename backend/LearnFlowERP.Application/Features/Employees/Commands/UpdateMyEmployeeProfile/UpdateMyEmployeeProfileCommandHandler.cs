@@ -1,4 +1,5 @@
-﻿using LearnFlowERP.Application.Common.Interfaces;
+﻿using LearnFlowERP.Application.Common.Exceptions;
+using LearnFlowERP.Application.Common.Interfaces;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
@@ -28,7 +29,7 @@ namespace LearnFlowERP.Application.Features.Employees.Commands.UpdateMyEmployeeP
                     cancellationToken);
 
             if (employee == null)
-                throw new Exception("Employee profile not found");
+                throw new NotFoundException("Employee profile not found");
 
             employee.FirstName = request.FirstName;
             employee.LastName = request.LastName;

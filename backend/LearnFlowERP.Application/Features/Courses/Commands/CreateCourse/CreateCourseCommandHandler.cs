@@ -1,4 +1,5 @@
-﻿using LearnFlowERP.Application.Common.Interfaces;
+﻿using LearnFlowERP.Application.Common.Exceptions;
+using LearnFlowERP.Application.Common.Interfaces;
 using LearnFlowERP.Domain.Entities;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -29,7 +30,7 @@ namespace LearnFlowERP.Application.Features.Courses.Commands.CreateCourse
                     cancellationToken);
 
             if (exists)
-                throw new Exception("Course code already exists");
+                throw new DataAlreadyExistsException("Course code already exists");
 
             var course = new Course
             {

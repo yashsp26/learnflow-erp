@@ -26,6 +26,7 @@ using Serilog;
 using LearnFlowERP.Api.Http;
 using LearnFlowERP.Infrastructure.Storage;
 using System.Text.Json.Serialization;
+using LearnFlowERP.Infrastructure.BackgroundJobs;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -112,8 +113,11 @@ else
     builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
 }
 
+builder.Services.AddScoped<IReceiptPdfService, ReceiptPdfService>();
 
+builder.Services.AddScoped<IFeeReminderService, FeeReminderService>();
 
+builder.Services.AddHostedService<FeeReminderScheduler>();
 
 // JWT Authentication
 builder.Services.AddScoped<ITokenService, JwtTokenService>();

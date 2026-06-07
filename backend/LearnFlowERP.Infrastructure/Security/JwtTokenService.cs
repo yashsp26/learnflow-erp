@@ -6,6 +6,7 @@ using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
+using LearnFlowERP.Application.Common.Exceptions;
 using LearnFlowERP.Application.Common.Interfaces;
 using LearnFlowERP.Domain.Entities;
 using Microsoft.Extensions.Configuration;
@@ -33,7 +34,7 @@ namespace LearnFlowERP.Infrastructure.Security
 
             var role =
                 user.UserRoles.FirstOrDefault()
-                ?? throw new Exception("User role not found");
+                ?? throw new NotFoundException("User role not found");
 
             var claims = new List<Claim>
             {

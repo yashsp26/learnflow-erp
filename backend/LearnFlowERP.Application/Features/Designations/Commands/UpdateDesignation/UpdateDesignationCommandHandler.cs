@@ -1,4 +1,5 @@
-﻿using LearnFlowERP.Application.Common.Interfaces;
+﻿using LearnFlowERP.Application.Common.Exceptions;
+using LearnFlowERP.Application.Common.Interfaces;
 using MediatR;
 
 namespace LearnFlowERP.Application.Features.Designations.Commands.UpdateDesignation
@@ -22,7 +23,7 @@ namespace LearnFlowERP.Application.Features.Designations.Commands.UpdateDesignat
                 .FindAsync(request.DesignationId);
 
             if (designation == null)
-                throw new Exception("Designation not found");
+                throw new NotFoundException("Designation not found");
 
             designation.Name = request.Name;
             designation.UpdatedAt = DateTime.Now;

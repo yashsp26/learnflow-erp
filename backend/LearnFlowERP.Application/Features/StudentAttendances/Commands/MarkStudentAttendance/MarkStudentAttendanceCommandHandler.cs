@@ -1,4 +1,5 @@
-﻿using LearnFlowERP.Application.Common.Interfaces;
+﻿using LearnFlowERP.Application.Common.Exceptions;
+using LearnFlowERP.Application.Common.Interfaces;
 using LearnFlowERP.Domain.Entities;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -31,7 +32,7 @@ namespace LearnFlowERP.Application.Features.StudentAttendances.Commands.MarkStud
                     cancellationToken);
 
             if (employee == null)
-                throw new Exception("Employee not found");
+                throw new NotFoundException("Employee not found");
 
             foreach (var student in request.Students)
             {

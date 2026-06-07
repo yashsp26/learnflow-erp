@@ -1,4 +1,5 @@
-﻿using LearnFlowERP.Application.Common.Interfaces;
+﻿using LearnFlowERP.Application.Common.Exceptions;
+using LearnFlowERP.Application.Common.Interfaces;
 using LearnFlowERP.Application.Features.Fees.DTOs;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -26,7 +27,7 @@ namespace LearnFlowERP.Application.Features.Fees.Queries.GetFeeById
                     cancellationToken);
 
             if (fee == null)
-                throw new Exception("Fee not found");
+                throw new NotFoundException("Fee not found");
 
             return new FeeDto
             {

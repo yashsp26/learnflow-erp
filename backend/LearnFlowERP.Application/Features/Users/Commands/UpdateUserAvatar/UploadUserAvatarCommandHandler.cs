@@ -1,4 +1,5 @@
-﻿using LearnFlowERP.Application.Common.Interfaces;
+﻿using LearnFlowERP.Application.Common.Exceptions;
+using LearnFlowERP.Application.Common.Interfaces;
 using MediatR;
 
 namespace LearnFlowERP.Application.Features.Users.Commands.UpdateUserAvatar
@@ -20,7 +21,7 @@ namespace LearnFlowERP.Application.Features.Users.Commands.UpdateUserAvatar
             var user = await _context.Users.FindAsync(request.UserId);
 
             if (user == null)
-                throw new Exception("User not found");
+                throw new NotFoundException("User not found");
 
             user.ProfileImageUrl = request.AvatarUrl;
 

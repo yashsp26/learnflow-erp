@@ -7,6 +7,8 @@ using LearnFlowERP.Application.Features.Permissions.Commands.RevokeDesignationPe
 using LearnFlowERP.Application.Features.Permissions.Queries.GetDesignationPermissions;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using LearnFlowERP.Api.Authorization;
+using LearnFlowERP.Application.Features.Payments.Queries.GetReceiptByPaymentId;
 
 namespace LearnFlowERP.Api.Controllers
 {
@@ -88,9 +90,7 @@ namespace LearnFlowERP.Api.Controllers
         }
 
         [HttpDelete("designations/{designationId}/{permissionId}")]
-        public async Task<IActionResult> RevokeDesignationPermission(
-    long designationId,
-    long permissionId)
+        public async Task<IActionResult> RevokeDesignationPermission(long designationId,long permissionId)
         {
             await _mediator.Send(
                 new RevokeDesignationPermissionCommand(
@@ -98,6 +98,15 @@ namespace LearnFlowERP.Api.Controllers
                     permissionId));
 
             return Ok();
+        }
+
+        [Permission("ViewPayment")]
+        [HttpGet("{paymentId}/receipt")]
+        public async Task<IActionResult> Receipt(long paymentId)
+        {
+            return Ok(
+                await _mediator.Send(
+                    new GetReceiptByPaymentIdQuery(paymentId)));
         }
     }
 }

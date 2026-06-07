@@ -60,5 +60,14 @@ namespace LearnFlowERP.Application.Common.Interfaces
         // COMMON
         // ----------------------------
         Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
+
+
+        //-----------------------------
+        // NOTIFICATIONS
+        //-----------------------------
+        DbSet<Notification> Notifications { get; }
+        DbSet<FeeReminder> FeeReminders { get; }
+        DbSet<UserNotification> UserNotifications { get; }
+
     }
 }

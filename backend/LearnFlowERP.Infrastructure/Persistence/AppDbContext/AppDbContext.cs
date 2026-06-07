@@ -55,6 +55,10 @@ namespace LearnFlowERP.Infrastructure.Persistence.AppDbContext
         public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
         public DbSet<PasswordResetOtp> PasswordResetOtps { get; set; }
 
+        public DbSet<Notification> Notifications => Set<Notification>();
+        public DbSet<FeeReminder> FeeReminders => Set<FeeReminder>();
+        public DbSet<UserNotification> UserNotifications => Set<UserNotification>();
+
         // ----------------------------
         // Model Configuration
         // ----------------------------
@@ -294,6 +298,27 @@ namespace LearnFlowERP.Infrastructure.Persistence.AppDbContext
                 .OnDelete(DeleteBehavior.Restrict);
 
             // ============================
+            // NOTIFICATIONS
+            // ============================
+
+            modelBuilder.Entity<FeeReminder>()
+                .HasOne(x => x.Fee)
+                .WithMany()
+                .HasForeignKey(x => x.FeeId);
+
+            modelBuilder.Entity<UserNotification>()
+                .HasOne(x => x.User)
+                .WithMany()
+                .HasForeignKey(x => x.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<UserNotification>()
+                .HasOne(x => x.Notification)
+                .WithMany(x => x.UserNotifications)
+                .HasForeignKey(x => x.NotificationId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            // ============================
             // REFRESH TOKEN
             // ============================
             modelBuilder.Entity<RefreshToken>()
@@ -421,6 +446,16 @@ namespace LearnFlowERP.Infrastructure.Persistence.AppDbContext
                     x.TenantId == _currentUser.TenantId);
 
             modelBuilder.Entity<Designation>()
+                .HasQueryFilter(x =>
+                    _currentUser.TenantId == null ||
+                    x.TenantId == _currentUser.TenantId);
+
+            modelBuilder.Entity<Notification>()
+                .HasQueryFilter(x =>
+                    _currentUser.TenantId == null ||
+                    x.TenantId == _currentUser.TenantId);
+
+            modelBuilder.Entity<FeeReminder>()
                 .HasQueryFilter(x =>
                     _currentUser.TenantId == null ||
                     x.TenantId == _currentUser.TenantId);
