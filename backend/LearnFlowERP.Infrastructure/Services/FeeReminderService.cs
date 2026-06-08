@@ -49,7 +49,7 @@ namespace LearnFlowERP.Infrastructure.Services
                     .AnyAsync(
                         x =>
                             x.FeeId == fee.FeeId &&
-                            x.Status == ReminderStatus.Sent &&
+                            x.Status == ReminderStatus.Pending &&
                             x.SentAt.Date == DateTime.Today,
                         cancellationToken);
 

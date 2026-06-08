@@ -31,11 +31,14 @@ namespace LearnFlowERP.Infrastructure.BackgroundJobs
                 {
                     var now = DateTime.Now;
 
-                    var nextRun = DateTime.Today
-                        .AddHours(18)
-                        .AddMinutes(13);
+                    var nextRun = DateTime.Today.AddHours(8);
 
-                    var delay = TimeSpan.FromMinutes(1);
+                    if (now >= nextRun)
+                    {
+                        nextRun = nextRun.AddDays(1);
+                    }
+
+                    var delay = nextRun - now;
 
                     _logger.LogInformation(
                         "Next fee reminder run at {NextRun}",
