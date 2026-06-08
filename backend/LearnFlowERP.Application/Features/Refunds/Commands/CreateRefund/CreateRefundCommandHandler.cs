@@ -12,13 +12,15 @@ namespace LearnFlowERP.Application.Features.Refunds.Commands.CreateRefund
     {
         private readonly IApplicationDbContext _context;
         private readonly ICurrentUserService _currentUser;
-
+        private readonly INotificationService _notificationService;
         public CreateRefundCommandHandler(
             IApplicationDbContext context,
-            ICurrentUserService currentUser)
+            ICurrentUserService currentUser,
+            INotificationService notificationService)
         {
             _context = context;
             _currentUser = currentUser;
+            _notificationService = notificationService;
         }
 
         public async Task<long> Handle(
@@ -83,6 +85,13 @@ namespace LearnFlowERP.Application.Features.Refunds.Commands.CreateRefund
                 });
 
             await _context.SaveChangesAsync(cancellationToken);
+
+            await _notificationService.SendToStudentAsync(
+                payment.Fee.StudentId,
+                "Refund Approved",
+                $"Refund of ₹{request.Amount:N2} has been approved.",
+                NotificationModule.Finance,
+                refund.RefundId);
 
             return refund.RefundId;
         }

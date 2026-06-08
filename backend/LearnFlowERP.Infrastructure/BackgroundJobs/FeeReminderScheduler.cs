@@ -32,10 +32,10 @@ namespace LearnFlowERP.Infrastructure.BackgroundJobs
                     var now = DateTime.Now;
 
                     var nextRun = DateTime.Today
-                        .AddDays(now.Hour >= 8 ? 1 : 0)
-                        .AddHours(8);
+                        .AddHours(18)
+                        .AddMinutes(13);
 
-                    var delay = nextRun - now;
+                    var delay = TimeSpan.FromMinutes(1);
 
                     _logger.LogInformation(
                         "Next fee reminder run at {NextRun}",

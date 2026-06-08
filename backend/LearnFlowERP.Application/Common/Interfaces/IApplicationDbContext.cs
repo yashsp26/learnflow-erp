@@ -68,6 +68,7 @@ namespace LearnFlowERP.Application.Common.Interfaces
         DbSet<Notification> Notifications { get; }
         DbSet<FeeReminder> FeeReminders { get; }
         DbSet<UserNotification> UserNotifications { get; }
+        DbSet<UserDevice> UserDevices { get; }
 
     }
 }

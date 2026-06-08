@@ -1,6 +1,7 @@
 ﻿using LearnFlowERP.Application.Common.Exceptions;
 using LearnFlowERP.Application.Common.Interfaces;
 using LearnFlowERP.Domain.Entities;
+using LearnFlowERP.Domain.Enums;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
@@ -11,13 +12,15 @@ namespace LearnFlowERP.Application.Features.Scholarships.Commands.CreateScholars
     {
         private readonly IApplicationDbContext _context;
         private readonly ICurrentUserService _currentUser;
-
+        private readonly INotificationService _notificationService;
         public CreateScholarshipCommandHandler(
             IApplicationDbContext context,
-            ICurrentUserService currentUser)
+            ICurrentUserService currentUser,
+            INotificationService notificationService)
         {
             _context = context;
             _currentUser = currentUser;
+            _notificationService = notificationService;
         }
 
         public async Task<long> Handle(
@@ -61,6 +64,13 @@ namespace LearnFlowERP.Application.Features.Scholarships.Commands.CreateScholars
             fee.Recalculate();
 
             await _context.SaveChangesAsync(cancellationToken);
+
+            await _notificationService.SendToStudentAsync(
+                request.StudentId,
+                "Scholarship Applied",
+                $"Scholarship of ₹{request.Amount:N2} has been applied.",
+                NotificationModule.Finance,
+                scholarship.StudentScholarshipId);
 
             return scholarship.StudentScholarshipId;
         }

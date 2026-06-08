@@ -6,8 +6,10 @@ using LearnFlowERP.Application.Features.Notifications.Queries.GetNotifications;
 using LearnFlowERP.Application.Features.Notifications.Queries.GetUnreadNotifications;
 using LearnFlowERP.Application.Features.Notifications.Queries.GetUnreadNotificationCount;
 using LearnFlowERP.Application.Features.FeeReminders.Commands.SendAllFeeReminders;
+using LearnFlowERP.Application.Features.Notifications.Commands.SendTestPush;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using LearnFlowERP.Domain.Enums;
 
 namespace LearnFlowERP.Api.Controllers
 {
@@ -98,5 +100,19 @@ namespace LearnFlowERP.Api.Controllers
                 remindersSent = count
             });
         }
+
+        [Permission("ViewNotification")]
+        [HttpPost("test-push")]
+        public async Task<IActionResult> TestPush()
+        {
+            await _mediator.Send(
+                new SendTestPushCommand());
+
+            return Ok(new
+            {
+                message = "Test notification sent"
+            });
+        }
+
     }
 }
