@@ -32,9 +32,12 @@ namespace LearnFlowERP.Infrastructure.Notifications
             NotificationModule module,
             long? referenceId = null)
         {
+            var user = await _context.Users
+                .AsNoTracking()
+                .FirstAsync(x => x.UserId == userId);
             var notification = new Notification
             {
-                TenantId = _currentUser.TenantId!.Value,
+                TenantId = user.TenantId,
                 Title = title,
                 Message = message,
                 Module = module,
