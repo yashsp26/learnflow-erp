@@ -27,7 +27,8 @@ using LearnFlowERP.Api.Http;
 using LearnFlowERP.Infrastructure.Storage;
 using System.Text.Json.Serialization;
 using LearnFlowERP.Infrastructure.BackgroundJobs;
-
+using FirebaseAdmin;
+using Google.Apis.Auth.OAuth2;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -177,6 +178,10 @@ else
 // Email
 builder.Services.AddHttpClient<IEmailService, BrevoEmailService>();
 
+// Notifications
+builder.Services.AddScoped<INotificationService, NotificationService>();
+builder.Services.AddScoped<IFcmService, FcmService>();
+
 // Permissions
 
 builder.Services.AddAuthorization();
@@ -250,6 +255,15 @@ builder.Services.AddTransient<CorrelationIdHandler>();
 
 builder.Services.AddHttpClient("MyClient").AddHttpMessageHandler<CorrelationIdHandler>();
 
+
+FirebaseApp.Create(
+    new AppOptions
+    {
+        Credential =
+            GoogleCredential
+                .FromFile(
+                    "firebase-service-account.json")
+    });
 
 var app = builder.Build();
 

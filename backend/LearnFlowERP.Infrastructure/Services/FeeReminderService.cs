@@ -1,7 +1,9 @@
 ﻿using LearnFlowERP.Application.Common.Interfaces;
 using LearnFlowERP.Domain.Entities;
 using LearnFlowERP.Domain.Enums;
+using LearnFlowERP.Infrastructure.BackgroundJobs;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
 namespace LearnFlowERP.Infrastructure.Services
 {
@@ -10,13 +12,19 @@ namespace LearnFlowERP.Infrastructure.Services
     {
         private readonly IApplicationDbContext _context;
         private readonly IEmailService _emailService;
+        private readonly INotificationService _notificationService;
+        private readonly ILogger<FeeReminderScheduler> _logger;
 
         public FeeReminderService(
             IApplicationDbContext context,
-            IEmailService emailService)
+            IEmailService emailService,
+            INotificationService notificationService,
+            ILogger<FeeReminderScheduler> logger)
         {
             _context = context;
             _emailService = emailService;
+            _notificationService = notificationService;
+            _logger = logger;
         }
 
         public async Task SendReminderAsync(
@@ -55,6 +63,10 @@ namespace LearnFlowERP.Infrastructure.Services
 
                 if (!string.IsNullOrWhiteSpace(email))
                 {
+                    _logger.LogInformation(
+                        "Sending reminder to {Email}",
+                        email);
+
                     await _emailService.SendAsync(
                         email,
                         "Fee Payment Reminder",
@@ -90,34 +102,21 @@ namespace LearnFlowERP.Infrastructure.Services
                             LearnFlow ERP
                         </p>
                         """);
+
+                    _logger.LogInformation(
+                        "Email sent to {Email}",
+                        email);
+
                 }
 
                 if (fee.Student.UserId.HasValue)
                 {
-                    var notification = new Notification
-                    {
-                        TenantId = fee.TenantId,
-
-                        Title = "Fee Payment Reminder",
-
-                        Message =
-                            $"Outstanding fee amount ₹{fee.OutstandingAmount:N2}",
-
-                        Type = NotificationType.Warning,
-
-                        Module = NotificationModule.Finance,
-
-                        ReferenceId = fee.FeeId
-                    };
-
-                    notification.UserNotifications.Add(
-                        new UserNotification
-                        {
-                            UserId = fee.Student.UserId.Value,
-                            IsRead = false
-                        });
-
-                    _context.Notifications.Add(notification);
+                    await _notificationService.SendAsync(
+                        fee.Student.UserId.Value,
+                        "Fee Payment Reminder",
+                        $"Outstanding fee amount ₹{fee.OutstandingAmount:N2}",
+                        NotificationModule.Finance,
+                        fee.FeeId);
                 }
 
                 _context.FeeReminders.Add(

@@ -12,13 +12,15 @@ namespace LearnFlowERP.Application.Features.Payments.Commands.CreatePayment
     {
         private readonly IApplicationDbContext _context;
         private readonly ICurrentUserService _currentUser;
-
+        private readonly INotificationService _notificationService;
         public CreatePaymentCommandHandler(
             IApplicationDbContext context,
-            ICurrentUserService currentUser)
+            ICurrentUserService currentUser,
+            INotificationService notificationService)
         {
             _context = context;
             _currentUser = currentUser;
+            _notificationService = notificationService;
         }
 
         public async Task<long> Handle(
@@ -70,6 +72,13 @@ namespace LearnFlowERP.Application.Features.Payments.Commands.CreatePayment
             fee.Recalculate();
 
             await _context.SaveChangesAsync(cancellationToken);
+
+            await _notificationService.SendToStudentAsync(
+                fee.StudentId,
+                "Payment Received",
+                $"Payment of ₹{request.AmountPaid:N2} received successfully.",
+                NotificationModule.Finance,
+                payment.PaymentId);
 
             return payment.PaymentId;
         }

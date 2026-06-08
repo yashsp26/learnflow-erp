@@ -58,6 +58,7 @@ namespace LearnFlowERP.Infrastructure.Persistence.AppDbContext
         public DbSet<Notification> Notifications => Set<Notification>();
         public DbSet<FeeReminder> FeeReminders => Set<FeeReminder>();
         public DbSet<UserNotification> UserNotifications => Set<UserNotification>();
+        public DbSet<UserDevice> UserDevices => Set<UserDevice>();
 
         // ----------------------------
         // Model Configuration
@@ -317,6 +318,11 @@ namespace LearnFlowERP.Infrastructure.Persistence.AppDbContext
                 .WithMany(x => x.UserNotifications)
                 .HasForeignKey(x => x.NotificationId)
                 .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<UserDevice>()
+                .HasOne(x => x.User)
+                .WithMany()
+                .HasForeignKey(x => x.UserId);
 
             // ============================
             // REFRESH TOKEN

@@ -34,7 +34,7 @@ namespace LearnFlowERP.Application.Features.FeeReminders.Commands.SendAllFeeRemi
                     x.DueDate <= today &&
                     !_context.FeeReminders.Any(r =>
                         r.FeeId == x.FeeId &&
-                        r.Status == ReminderStatus.Sent &&
+                        r.Status == ReminderStatus.Pending &&
                         r.SentAt.Date == today))
                 .Select(x => x.FeeId)
                 .ToListAsync(cancellationToken);
