@@ -6,8 +6,6 @@ namespace LearnFlowERP.Application.Features.Users.Commands
     public record CreateUserCommand(
         string Username,
         long RoleId,
-        string Email,
-        string Password,
-        UserType UserType
+        string Email
     ) : IRequest<long>;
 }

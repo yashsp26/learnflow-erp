@@ -6,31 +6,30 @@ export const getUsersApi = async () => {
   return response.data;
 };
 
-export const getUserByIdApi =
-  async (id: number) => {
-    const response = await api.get(
-      `/users/${id}`
-    );
+export const getUserByIdApi = async (
+  id: number
+) => {
+  const response = await api.get(
+    `/users/${id}`
+  );
 
-    return response.data;
-  };
+  return response.data;
+};
 
-export const createUserApi =
-  async (
-    username: string,
-    roleId: number,
-    email: string,
-    password: string
-  ) => {
-    const response = await api.post(
-      "/users",
-      {
-        username,
-        roleId,
-        email,
-        password,
-      }
-    );
+export const createUserApi = async (
+  username: string,
+  roleId: number,
+  email: string
+) => {
+  const response = await api.post(
+    "/users",
+    {
+      username,
+      roleId,
+      email,
+      password: "",
+    }
+  );
 
-    return response.data;
-  };
+  return response.data;
+};

@@ -1,22 +1,18 @@
 import {
   Box,
   Button,
-  Card,
-  CardContent,
   TextField,
-  Typography,
 } from "@mui/material";
 
 import { useState } from "react";
 
-import {
-  useNavigate,
-} from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
-import {
-  forgotPasswordApi,
-} from "../../api/authApi";
-import { toast } from "react-hot-toast";
+import { forgotPasswordApi } from "../../api/authApi";
+
+import toast from "react-hot-toast";
+
+import AuthCard from "../../components/common/AuthCard";
 
 export default function ForgotPasswordPage() {
   const navigate = useNavigate();
@@ -33,11 +29,17 @@ export default function ForgotPasswordPage() {
 
       await forgotPasswordApi(email);
 
+      toast.success(
+        "OTP sent successfully"
+      );
+
       navigate(
         `/reset-password?email=${email}`
       );
     } catch {
-      toast.error("Failed to fetch users");
+      toast.error(
+        "Failed to send OTP"
+      );
     } finally {
       setLoading(false);
     }
@@ -49,70 +51,43 @@ export default function ForgotPasswordPage() {
         display: "flex",
         justifyContent: "center",
         alignItems: "center",
-        height: "100vh",
+        minHeight: "100vh",
         backgroundColor: "#f5f3ee",
       }}
     >
-      <Card
-        elevation={0}
-        sx={{
-          width: 420,
-          borderRadius: "24px",
-          border: "1px solid #ece7df",
-        }}
+      <AuthCard
+        title="Forgot Password"
+        subtitle="Enter your email to receive OTP"
       >
-        <CardContent sx={{ padding: 5 }}>
-          <Typography
-            variant="h4"
-            sx={{
-              fontWeight: 700,
-              marginBottom: 1,
-            }}
-          >
-            Forgot Password
-          </Typography>
+        <TextField
+          fullWidth
+          label="Email"
+          margin="normal"
+          value={email}
+          onChange={(e) =>
+            setEmail(
+              e.target.value
+            )
+          }
+        />
 
-          <Typography
-            sx={{
-              color: "#6b7280",
-              marginBottom: 4,
-            }}
-          >
-            Enter your email to receive OTP.
-          </Typography>
-
-          <TextField
-            fullWidth
-            label="Email"
-            margin="normal"
-            value={email}
-            onChange={(e) =>
-              setEmail(e.target.value)
-            }
-          />
-
-          <Button
-            fullWidth
-            variant="contained"
-            onClick={handleSendOtp}
-            disabled={loading}
-            sx={{
-              marginTop: 3,
-              padding: 1.5,
-              backgroundColor: "#e86f00",
-              borderRadius: "10px",
-
-              "&:hover": {
-                backgroundColor: "#d65f00",
-              },
-            }}
-          >
-            {loading
-              ? "Sending OTP..."
-              : "Send OTP"}
-          </Button>
-        </CardContent>
-      </Card>
+        <Button
+          fullWidth
+          variant="contained"
+          onClick={handleSendOtp}
+          disabled={loading}
+          sx={{
+            mt: 3,
+            py: 1.5,
+            borderRadius: "10px",
+            textTransform: "none",
+          }}
+        >
+          {loading
+            ? "Sending OTP..."
+            : "Send OTP"}
+        </Button>
+      </AuthCard>
     </Box>
   );
 }

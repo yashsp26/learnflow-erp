@@ -1,10 +1,23 @@
-import { Box, Button, Card, CardContent, Typography } from "@mui/material";
+import {
+  Box,
+  Button,
+  Card,
+  CardContent,
+  Typography,
+  IconButton,
+} from "@mui/material";
 
 import { DataGrid } from "@mui/x-data-grid";
-
 import type { GridColDef } from "@mui/x-data-grid";
 
 import { useEffect, useState } from "react";
+
+import {
+  VisibilityOutlined,
+  AddOutlined,
+} from "@mui/icons-material";
+
+import toast from "react-hot-toast";
 
 import SearchBar from "../../components/common/SearchBar";
 
@@ -13,15 +26,21 @@ import { getUsersApi } from "../../api/userApi";
 import type { User } from "../../types/user";
 
 import CreateUserDialog from "./CreateUserDialog";
-import { appTheme } from "../../theme/theme";
-import toast from "react-hot-toast";
+import UserDetailsDialog from "./UserDetailsDialog";
 
 export default function UsersPage() {
   const [users, setUsers] = useState<User[]>([]);
 
   const [loading, setLoading] = useState(true);
 
-  const [openCreate, setOpenCreate] = useState(false);
+  const [openCreate, setOpenCreate] =
+    useState(false);
+
+  const [openDetails, setOpenDetails] =
+    useState(false);
+
+  const [selectedUserId, setSelectedUserId] =
+    useState<number | null>(null);
 
   const fetchUsers = async (): Promise<void> => {
     try {
@@ -29,7 +48,7 @@ export default function UsersPage() {
 
       const response = await getUsersApi();
 
-      setUsers(response.Data);
+      setUsers(response.Data ?? []);
     } catch {
       toast.error("Failed to fetch users");
     } finally {
@@ -42,7 +61,7 @@ export default function UsersPage() {
       await fetchUsers();
     };
 
-    loadUsers();
+    void loadUsers();
   }, []);
 
   const columns: GridColDef[] = [
@@ -59,34 +78,82 @@ export default function UsersPage() {
     {
       field: "email",
       headerName: "Email",
-      flex: 1,
+      flex: 1.5,
+    },
+    {
+      field: "actions",
+      headerName: "Actions",
+      width: 120,
+      sortable: false,
+
+      renderCell: (params) => (
+        <IconButton
+          onClick={() => {
+            setSelectedUserId(
+              params.row.userId
+            );
+
+            setOpenDetails(true);
+          }}
+        >
+          <VisibilityOutlined />
+        </IconButton>
+      ),
     },
   ];
 
   return (
     <Box>
+      {/* HEADER */}
+
       <Box
         sx={{
           display: "flex",
-          justifyContent: "space-between",
+          justifyContent:
+            "space-between",
           alignItems: "center",
           marginBottom: 3,
         }}
       >
-        <Typography variant="h4">Users</Typography>
+        <Box>
+          <Typography
+            variant="h4"
+            sx={{
+              fontWeight: 700,
+            }}
+          >
+            Users
+          </Typography>
+
+          <Typography
+            color="text.secondary"
+          >
+            Manage system users
+          </Typography>
+        </Box>
 
         <Button
           variant="contained"
-          onClick={() => setOpenCreate(true)}
-          sx={{
-            backgroundColor: appTheme.palette.primary.main,
-          }}
+          startIcon={<AddOutlined />}
+          onClick={() =>
+            setOpenCreate(true)
+          }
         >
           Add User
         </Button>
       </Box>
 
-      <SearchBar placeholder="Search users..." />
+      {/* SEARCH */}
+
+      <Box
+        sx={{
+          marginBottom: 3,
+        }}
+      >
+        <SearchBar placeholder="Search users..." />
+      </Box>
+
+      {/* TABLE */}
 
       <Card
         elevation={0}
@@ -98,46 +165,73 @@ export default function UsersPage() {
         <CardContent>
           <Box
             sx={{
-              height: 500,
+              height: 550,
             }}
           >
             <DataGrid
               rows={users}
               columns={columns}
               loading={loading}
-              getRowId={(row) => row.userId}
+              getRowId={(row) =>
+                row.userId
+              }
               disableRowSelectionOnClick
-              pageSizeOptions={[5, 10, 20]}
+              pageSizeOptions={[
+                5,
+                10,
+                20,
+              ]}
               sx={{
                 border: "none",
-                backgroundColor: "#fcfbf8",
+                backgroundColor:
+                  "#fcfbf8",
 
-                "& .MuiDataGrid-columnHeaders": {
-                  backgroundColor: "#f9fafb",
-                  borderBottom: "1px solid #ece7df",
-                },
+                "& .MuiDataGrid-columnHeaders":
+                  {
+                    backgroundColor:
+                      "#f9fafb",
+                    borderBottom:
+                      "1px solid #ece7df",
+                  },
 
                 "& .MuiDataGrid-cell": {
-                  borderBottom: "1px solid #f3f4f6",
+                  borderBottom:
+                    "1px solid #f3f4f6",
                 },
 
-                "& .MuiDataGrid-footerContainer": {
-                  borderTop: "1px solid #ece7df",
-                },
+                "& .MuiDataGrid-footerContainer":
+                  {
+                    borderTop:
+                      "1px solid #ece7df",
+                  },
 
-                "& .MuiDataGrid-row:hover": {
-                  backgroundColor: "#fffaf5",
-                },
+                "& .MuiDataGrid-row:hover":
+                  {
+                    backgroundColor:
+                      "#fffaf5",
+                  },
               }}
             />
           </Box>
         </CardContent>
       </Card>
 
+      {/* DIALOGS */}
+
       <CreateUserDialog
         open={openCreate}
-        onClose={() => setOpenCreate(false)}
+        onClose={() =>
+          setOpenCreate(false)
+        }
         onSuccess={fetchUsers}
+      />
+
+      <UserDetailsDialog
+        open={openDetails}
+        userId={selectedUserId}
+        onClose={() =>
+          setOpenDetails(false)
+        }
       />
     </Box>
   );
