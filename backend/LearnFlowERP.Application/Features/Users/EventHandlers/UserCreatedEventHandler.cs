@@ -26,7 +26,27 @@ namespace LearnFlowERP.Application.Features.Users.EventHandlers
             await _emailService.SendAsync(
                 notification.Email,
                 "Welcome to LearnFlow ERP",
-                $"<h3>Hello {notification.Username}</h3><p>Your account is created.</p>"
+                $"""
+               <div style="font-family: Arial, sans-serif; line-height: 1.6;">
+                   <h2 style="color:#2563eb;">Welcome to LearnFlow ERP</h2>
+
+                   <p>Hello <strong>{notification.Username}</strong>,</p>
+
+                   <p>Your account has been successfully created and is now ready to use.</p>
+
+                   <p>
+                       You can log in to access your dashboard, manage your profile,
+                       and start using the platform's features.
+                   </p>
+
+                   <p>We're excited to have you on board!</p>
+
+                   <p>
+                       Regards,<br/>
+                       <strong>LearnFlow ERP Team</strong>
+                   </p>
+               </div>
+               """
             );
         }
     }

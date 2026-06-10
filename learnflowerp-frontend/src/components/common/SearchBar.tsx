@@ -6,37 +6,43 @@ import {
 import SearchIcon from "@mui/icons-material/Search";
 
 type Props = {
+  value?: string;
+  onChange?: (
+    value: string
+  ) => void;
   placeholder?: string;
 };
 
 export default function SearchBar({
-  placeholder,
+  value,
+  onChange,
+  placeholder = "Search...",
 }: Props) {
   return (
     <Box
       sx={{
         display: "flex",
         alignItems: "center",
-        backgroundColor: "#f3f4f6",
-        borderRadius: "12px",
+        backgroundColor: "#f9fafb",
+        border: "1px solid #ece7df",
+        borderRadius: "14px",
         padding: "10px 16px",
-        marginBottom: 3,
       }}
     >
       <SearchIcon
         sx={{
           color: "#9ca3af",
-          marginRight: 1,
+          mr: 1,
         }}
       />
 
       <InputBase
-        placeholder={
-          placeholder || "Search..."
+        fullWidth
+        value={value}
+        placeholder={placeholder}
+        onChange={(e) =>
+          onChange?.(e.target.value)
         }
-        sx={{
-          width: "100%",
-        }}
       />
     </Box>
   );

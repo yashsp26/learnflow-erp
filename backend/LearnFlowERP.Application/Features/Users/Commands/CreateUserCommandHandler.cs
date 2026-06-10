@@ -1,6 +1,7 @@
 ﻿using LearnFlowERP.Application.Common.Interfaces;
 using LearnFlowERP.Application.Features.Users.Commands.Events;
 using LearnFlowERP.Domain.Entities;
+using LearnFlowERP.Domain.Enums;
 using MediatR;
 
 
@@ -43,7 +44,9 @@ namespace LearnFlowERP.Application.Features.Users.Commands
                 PasswordHash = _hasher.Hash(tempPassword),
                 TenantId = _currentUser.TenantId ?? 0,
                 CreatedBy = _currentUser.UserId,
-                UserType = request.UserType,
+                UserType = Enum.IsDefined(typeof(UserType), (int)request.RoleId)
+                    ? (UserType)request.RoleId
+                    : throw new InvalidOperationException($"Invalid RoleId: {request.RoleId}"),
                 ProfileCompleted = false,
             };
 
@@ -56,19 +59,51 @@ namespace LearnFlowERP.Application.Features.Users.Commands
 
             _context.Users.Add(user);
 
-            await _context.SaveChangesAsync(cancellationToken);
-            await _emailService.SendAsync(
-                user.Email,
-                "Your ERP Account",
-                $"""
-                Your account has been created.
+            try
+            {
+                await _emailService.SendAsync(
+                    user.Email,
+                    "Your ERP Account Has Been Created",
+                    $"""
+                <div style="font-family: Arial, sans-serif; line-height: 1.6;">
+                    <h2 style="color:#2563eb;">Welcome to LearnFlow ERP</h2>
             
-                Email: {user.Email}
-                Password: {tempPassword}
+                    <p>Hello,</p>
             
-                Please login and complete your profile.
+                    <p>Your ERP account has been successfully created. 
+                    You can use the credentials below to sign in:</p>
+            
+                    <table style="border-collapse: collapse; margin: 15px 0;">
+                        <tr>
+                            <td style="padding: 8px; font-weight: bold;">Email:</td>
+                            <td style="padding: 8px;">{user.Email}</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 8px; font-weight: bold;">Temporary Password:</td>
+                            <td style="padding: 8px;">{tempPassword}</td>
+                        </tr>
+                    </table>
+            
+                    <p>
+                        <strong>Important:</strong> For security reasons, 
+                        please change your password 
+                        after your first login and complete your profile information.
+                    </p>
+            
+                    <p>Thank you,<br/>LearnFlow ERP Team</p>
+                                    <p style="margin:20px 0;">
+                </p>
+                </div>
                 """
-            );
+                );
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(
+                    $"Email failed: {ex.Message}");
+            }
+
+            await _context.SaveChangesAsync(cancellationToken);
 
             await _mediator.Publish(
                 new UserCreatedEvent(user.Email, user.Username),

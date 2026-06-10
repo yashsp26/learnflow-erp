@@ -5,14 +5,15 @@ import {
   TextField,
   Button,
   Box,
+  MenuItem,
+  Typography,
 } from "@mui/material";
 
 import { useState } from "react";
 
-import {
-  createUserApi,
-} from "../../api/userApi";
 import toast from "react-hot-toast";
+
+import { createUserApi } from "../../api/userApi";
 
 type Props = {
   open: boolean;
@@ -31,28 +32,53 @@ export default function CreateUserDialog({
   const [email, setEmail] =
     useState("");
 
-  const [password, setPassword] =
-    useState("");
+  const [roleId, setRoleId] =
+    useState(1);
 
   const [loading, setLoading] =
     useState(false);
 
   const handleCreate = async () => {
+    if (!username.trim()) {
+      toast.error(
+        "Username is required"
+      );
+
+      return;
+    }
+
+    if (!email.trim()) {
+      toast.error(
+        "Email is required"
+      );
+
+      return;
+    }
+
     try {
       setLoading(true);
 
       await createUserApi(
         username,
-        1,
-        email,
-        password
+        roleId,
+        email
       );
+
+      toast.success(
+        "User created successfully"
+      );
+
+      setUsername("");
+      setEmail("");
+      setRoleId(1);
 
       onSuccess();
 
       onClose();
     } catch {
-      toast.error("Failed to create user");
+      toast.error(
+        "Failed to create user"
+      );
     } finally {
       setLoading(false);
     }
@@ -73,7 +99,8 @@ export default function CreateUserDialog({
         <Box
           sx={{
             display: "flex",
-            flexDirection: "column",
+            flexDirection:
+              "column",
             gap: 2,
             marginTop: 2,
           }}
@@ -101,24 +128,57 @@ export default function CreateUserDialog({
           />
 
           <TextField
-            label="Password"
-            type="password"
-            value={password}
+            select
+            label="Role"
+            value={roleId}
             onChange={(e) =>
-              setPassword(
-                e.target.value
+              setRoleId(
+                Number(
+                  e.target.value
+                )
               )
             }
             fullWidth
-          />
+          >
+            <MenuItem value={1}>
+              Admin
+            </MenuItem>
+
+            <MenuItem value={2}>
+              Student
+            </MenuItem>
+
+            <MenuItem value={3}>
+              Employee
+            </MenuItem>
+          </TextField>
+
+          <Typography
+            sx={{
+              fontSize: "14px",
+              color: "#6b7280",
+              backgroundColor:
+                "#fff7ed",
+              padding: 2,
+              borderRadius: "12px",
+              border:
+                "1px solid #fed7aa",
+            }}
+          >
+            A temporary password will
+            be generated automatically
+            and sent to the user's
+            email address.
+          </Typography>
 
           <Button
             variant="contained"
             onClick={handleCreate}
             disabled={loading}
             sx={{
-              backgroundColor:
-                "#e86f00",
+              borderRadius: "12px",
+              textTransform: "none",
+              height: 48,
             }}
           >
             {loading

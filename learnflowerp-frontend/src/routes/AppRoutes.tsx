@@ -15,6 +15,10 @@ export default function AppRoutes() {
       <Routes>
         <Route path="/" element={<LoginPage />} />
 
+        <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+
+        <Route path="/reset-password" element={<ResetPasswordPage />} />
+
         <Route element={<AppLayout />}>
           <Route path="/dashboard" element={<DashboardPage />} />
 
@@ -23,10 +27,6 @@ export default function AppRoutes() {
           <Route path="/students" element={<StudentsPage />} />
 
           <Route path="/courses" element={<CoursesPage />} />
-
-          <Route path="/forgot-password" element={<ForgotPasswordPage />} />
-
-          <Route path="/reset-password" element={<ResetPasswordPage />} />
         </Route>
       </Routes>
     </BrowserRouter>
