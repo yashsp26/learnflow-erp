@@ -2,7 +2,7 @@
 
 namespace LearnFlowERP.Application.Features.Courses.Commands.CreateCourse
 {
-    public class CreateCourseCommand : IRequest<long>
+    public class CreateCourseCommand : IRequest<string>
     {
         public string CourseCode { get; set; } = null!;
 

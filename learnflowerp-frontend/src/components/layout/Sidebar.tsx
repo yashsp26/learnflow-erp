@@ -1,5 +1,10 @@
 import { useState } from "react";
 
+import { useDispatch } from "react-redux";
+
+import { logoutApi } from "../../api/authApi";
+import { logout } from "../../features/auth/authSlice";
+
 import { Box, IconButton, Typography, Avatar, Button } from "@mui/material";
 
 import { useNavigate } from "react-router-dom";
@@ -27,8 +32,6 @@ import AssessmentOutlinedIcon from "@mui/icons-material/AssessmentOutlined";
 import NotificationsActiveOutlinedIcon from "@mui/icons-material/NotificationsActiveOutlined";
 
 import SecurityOutlinedIcon from "@mui/icons-material/SecurityOutlined";
-import BusinessCenterOutlinedIcon from "@mui/icons-material/BusinessCenterOutlined";
-
 import SettingsOutlinedIcon from "@mui/icons-material/SettingsOutlined";
 import ApartmentOutlinedIcon from "@mui/icons-material/ApartmentOutlined";
 
@@ -49,6 +52,8 @@ export default function Sidebar({
   closeMobileSidebar,
 }: Props) {
   const navigate = useNavigate();
+
+  const dispatch = useDispatch();
 
   const location = useLocation();
 
@@ -81,13 +86,22 @@ export default function Sidebar({
       location.pathname.startsWith("/tenant-settings"),
   );
 
-  const handleLogout = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("refreshToken");
-    localStorage.removeItem("userEmail");
+const handleLogout = async () => {
+  try {
+    const refreshToken =
+      localStorage.getItem("refreshToken");
 
-    navigate("/");
-  };
+    if (refreshToken) {
+      await logoutApi(refreshToken);
+    }
+  } catch (error) {
+    console.error("Logout failed", error);
+  }
+
+  dispatch(logout());
+
+  navigate("/");
+};
 
   return (
     <Box
@@ -294,7 +308,7 @@ export default function Sidebar({
           >
             <SidebarMenuItem
               title="Designations"
-              icon={<BusinessCenterOutlinedIcon />}
+              icon={<BadgeOutlinedIcon />}
               path="/designations"
               collapsed={collapsed}
             />
