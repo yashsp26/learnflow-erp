@@ -2,7 +2,7 @@
 {
     public interface IPermissionCacheService
     {
-        Task<List<string>> GetPermissionsAsync(long userId);
+        Task<List<string>> GetPermissionsAsync(long userId, CancellationToken cancellationToken = default);
 
         void RemoveUserPermissions(long userId);
         

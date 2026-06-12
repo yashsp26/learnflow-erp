@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore;
 namespace LearnFlowERP.Application.Features.Courses.Commands.CreateCourse
 {
     public class CreateCourseCommandHandler
-        : IRequestHandler<CreateCourseCommand, long>
+        : IRequestHandler<CreateCourseCommand, string>
     {
         private readonly IApplicationDbContext _context;
         private readonly ICurrentUserService _currentUser;
@@ -20,17 +20,25 @@ namespace LearnFlowERP.Application.Features.Courses.Commands.CreateCourse
             _currentUser = currentUser;
         }
 
-        public async Task<long> Handle(
+        public async Task<string> Handle(
             CreateCourseCommand request,
             CancellationToken cancellationToken)
         {
             var exists = await _context.Courses
-                .AnyAsync(
-                    x => x.CourseCode == request.CourseCode,
-                    cancellationToken);
+     .FirstOrDefaultAsync(
+         x =>
+             x.CourseCode.ToLower() == request.CourseCode.ToLower() &&
+             x.CourseName.ToLower() == request.CourseName.ToLower() &&
+             x.Credits == request.Credits,
+         cancellationToken);
 
-            if (exists)
-                throw new DataAlreadyExistsException("Course code already exists");
+            if (exists != null)
+            {
+                exists.IsActive = true;
+                await _context.SaveChangesAsync(cancellationToken);
+
+                return "Course already exists and has been reactivated.";
+            }
 
             var course = new Course
             {
@@ -46,7 +54,7 @@ namespace LearnFlowERP.Application.Features.Courses.Commands.CreateCourse
 
             await _context.SaveChangesAsync(cancellationToken);
 
-            return course.CourseId;
+            return "Course Added Successfully.";
         }
     }
 }

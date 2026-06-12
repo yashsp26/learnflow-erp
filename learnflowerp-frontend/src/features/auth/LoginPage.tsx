@@ -9,7 +9,6 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import { loginApi } from "../../api/authApi";
-
 import toast from "react-hot-toast";
 
 import AuthCard from "../../components/common/AuthCard";
@@ -79,6 +78,16 @@ export default function LoginPage() {
     }
   };
 
+  const handleSubmit = async (
+    e: React.FormEvent
+  ) => {
+    e.preventDefault();
+
+    if (loading) return;
+
+    await handleLogin();
+  };
+
   return (
     <Box
       sx={{
@@ -93,85 +102,92 @@ export default function LoginPage() {
         title="LearnFlowERP"
         subtitle="Welcome back"
       >
-        <TextField
-          fullWidth
-          label="Tenant Code"
-          margin="normal"
-          value={tenantCode}
-          onChange={(e) =>
-            setTenantCode(
-              e.target.value
-            )
-          }
-        />
-
-        <TextField
-          fullWidth
-          label="Email"
-          margin="normal"
-          value={email}
-          onChange={(e) =>
-            setEmail(
-              e.target.value
-            )
-          }
-        />
-
-        <TextField
-          fullWidth
-          label="Password"
-          type="password"
-          margin="normal"
-          value={password}
-          onChange={(e) =>
-            setPassword(
-              e.target.value
-            )
-          }
-        />
-
         <Box
-          sx={{
-            display: "flex",
-            justifyContent:
-              "flex-end",
-            mt: 1,
-          }}
+          component="form"
+          onSubmit={handleSubmit}
+          noValidate
         >
-          <Link
-            component="button"
-            underline="none"
-            onClick={() =>
-              navigate(
-                "/forgot-password"
+          <TextField
+            fullWidth
+            label="Tenant Code"
+            margin="normal"
+            value={tenantCode}
+            onChange={(e) =>
+              setTenantCode(
+                e.target.value
               )
             }
+          />
+
+          <TextField
+            fullWidth
+            label="Email"
+            type="email"
+            margin="normal"
+            value={email}
+            onChange={(e) =>
+              setEmail(
+                e.target.value
+              )
+            }
+          />
+
+          <TextField
+            fullWidth
+            label="Password"
+            type="password"
+            margin="normal"
+            value={password}
+            onChange={(e) =>
+              setPassword(
+                e.target.value
+              )
+            }
+          />
+
+          <Box
             sx={{
-              color: "#e86f00",
-              fontWeight: 600,
+              display: "flex",
+              justifyContent:
+                "flex-end",
+              mt: 1,
             }}
           >
-            Forgot Password?
-          </Link>
-        </Box>
+            <Link
+              component="button"
+              underline="none"
+              onClick={() =>
+                navigate(
+                  "/forgot-password"
+                )
+              }
+              sx={{
+                color: "#e86f00",
+                fontWeight: 600,
+              }}
+            >
+              Forgot Password?
+            </Link>
+          </Box>
 
-        <Button
-          fullWidth
-          variant="contained"
-          onClick={handleLogin}
-          disabled={loading}
-          sx={{
-            mt: 3,
-            py: 1.5,
-            borderRadius: "10px",
-            textTransform: "none",
-            fontSize: "16px",
-          }}
-        >
-          {loading
-            ? "Logging in..."
-            : "Login"}
-        </Button>
+          <Button
+            fullWidth
+            type="submit"
+            variant="contained"
+            disabled={loading}
+            sx={{
+              mt: 3,
+              py: 1.5,
+              borderRadius: "10px",
+              textTransform: "none",
+              fontSize: "16px",
+            }}
+          >
+            {loading
+              ? "Logging in..."
+              : "Login"}
+          </Button>
+        </Box>
       </AuthCard>
     </Box>
   );

@@ -5,10 +5,11 @@ using LearnFlowERP.Application.Features.Permissions.Queries.GetAllPermissions;
 using LearnFlowERP.Application.Features.Permissions.Queries.GetRolePermissions;
 using LearnFlowERP.Application.Features.Permissions.Commands.RevokeDesignationPermission;
 using LearnFlowERP.Application.Features.Permissions.Queries.GetDesignationPermissions;
+using LearnFlowERP.Application.Features.Permissions.Queries.GetRoles;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using LearnFlowERP.Api.Authorization;
-using LearnFlowERP.Application.Features.Payments.Queries.GetReceiptByPaymentId;
+using LearnFlowERP.Application.Features.Permissions.Queries.GetCurrentUserPermissions;
 
 namespace LearnFlowERP.Api.Controllers
 {
@@ -23,6 +24,7 @@ namespace LearnFlowERP.Api.Controllers
             _mediator = mediator;
         }
 
+        [Permission("ManagePermissions")]
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
@@ -31,6 +33,7 @@ namespace LearnFlowERP.Api.Controllers
                     new GetAllPermissionsQuery()));
         }
 
+        [Permission("ManagePermissions")]
         [HttpGet("roles/{roleId}")]
         public async Task<IActionResult> GetRolePermissions(
             long roleId)
@@ -40,6 +43,16 @@ namespace LearnFlowERP.Api.Controllers
                     new GetRolePermissionsQuery(roleId)));
         }
 
+        [Permission("ManagePermissions")]
+        [HttpGet("roles")]
+        public async Task<IActionResult> GetRoles()
+        {
+            return Ok(
+                await _mediator.Send(
+                    new GetRolesQuery()));
+        }
+
+        [Permission("ManagePermissions")]
         [HttpPost("roles/{roleId}/{permissionId}")]
         public async Task<IActionResult> GrantRolePermission(
             long roleId,
@@ -53,6 +66,7 @@ namespace LearnFlowERP.Api.Controllers
             return Ok();
         }
 
+        [Permission("ManagePermissions")]
         [HttpDelete("roles/{roleId}/{permissionId}")]
         public async Task<IActionResult> RevokeRolePermission(
             long roleId,
@@ -66,6 +80,7 @@ namespace LearnFlowERP.Api.Controllers
             return Ok();
         }
 
+        [Permission("ManagePermissions")]
         [HttpGet("designations/{designationId}")]
         public async Task<IActionResult> GetDesignationPermissions(
     long designationId)
@@ -76,6 +91,7 @@ namespace LearnFlowERP.Api.Controllers
                         designationId)));
         }
 
+        [Permission("ManagePermissions")]
         [HttpPost("designations/{designationId}/{permissionId}")]
         public async Task<IActionResult> GrantDesignationPermission(
             long designationId,
@@ -89,6 +105,7 @@ namespace LearnFlowERP.Api.Controllers
             return Ok();
         }
 
+        [Permission("ManagePermissions")]
         [HttpDelete("designations/{designationId}/{permissionId}")]
         public async Task<IActionResult> RevokeDesignationPermission(long designationId,long permissionId)
         {
@@ -100,13 +117,13 @@ namespace LearnFlowERP.Api.Controllers
             return Ok();
         }
 
-        [Permission("ViewPayment")]
-        [HttpGet("{paymentId}/receipt")]
-        public async Task<IActionResult> Receipt(long paymentId)
+        [HttpGet("my")]
+        public async Task<ActionResult<List<string>>>GetCurrentUserPermissions()
         {
-            return Ok(
-                await _mediator.Send(
-                    new GetReceiptByPaymentIdQuery(paymentId)));
+            var result = await _mediator.Send(
+                new GetCurrentUserPermissionsQuery());
+
+            return Ok(result);
         }
     }
 }

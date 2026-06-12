@@ -1,6 +1,7 @@
 ﻿using LearnFlowERP.Application.Common.Exceptions;
 using LearnFlowERP.Application.Common.Interfaces;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 
 namespace LearnFlowERP.Application.Features.Designations.Commands.UpdateDesignation
 {
@@ -20,7 +21,9 @@ namespace LearnFlowERP.Application.Features.Designations.Commands.UpdateDesignat
             CancellationToken cancellationToken)
         {
             var designation = await _context.Designations
-                .FindAsync(request.DesignationId);
+                .FirstOrDefaultAsync(
+                    x => x.DesignationId == request.DesignationId,
+                    cancellationToken);
 
             if (designation == null)
                 throw new NotFoundException("Designation not found");

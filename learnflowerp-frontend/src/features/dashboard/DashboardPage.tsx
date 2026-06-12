@@ -29,7 +29,7 @@ export default function DashboardPage() {
     <Box>
       <PageHeader
         title="Dashboard management"
-        tabs={["Dashboard", "Analytics"]}
+        subtitle="Overview of ERP statistics"
       />
 
       <SearchBar placeholder="Search dashboard..." />

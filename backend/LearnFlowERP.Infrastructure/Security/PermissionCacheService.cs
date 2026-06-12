@@ -18,9 +18,12 @@ namespace LearnFlowERP.Infrastructure.Security
             _cache = cache;
         }
 
-        public async Task<List<string>> GetPermissionsAsync(long userId)
+        public async Task<List<string>> GetPermissionsAsync(
+            long userId,
+            CancellationToken cancellationToken = default)
         {
-            var cacheKey = $"user_permissions_{userId}";
+            var cacheKey =
+                $"user_permissions_{userId}";
 
             if (_cache.TryGetValue(
                 cacheKey,
@@ -30,6 +33,8 @@ namespace LearnFlowERP.Infrastructure.Security
             }
 
             var user = await _context.Users
+                .AsNoTracking()
+
                 .Include(x => x.UserRoles)
                     .ThenInclude(x => x.Role)
                         .ThenInclude(x => x.RolePermissions)
@@ -40,55 +45,82 @@ namespace LearnFlowERP.Infrastructure.Security
                         .ThenInclude(x => x.DesignationPermissions)
                             .ThenInclude(x => x.Permission)
 
-                .FirstOrDefaultAsync(x => x.UserId == userId);
+                .FirstOrDefaultAsync(
+                    x => x.UserId == userId,
+                    cancellationToken);
 
             if (user == null)
-                return new List<string>();
-
-            var permissionSet = new HashSet<string>(
-                StringComparer.OrdinalIgnoreCase);
-
-            // Role Permissions
-            permissionSet.UnionWith(
-                user.UserRoles
-                    .SelectMany(x => x.Role.RolePermissions)
-                    .Select(x => x.Permission.Name));
-
-            // Designation Permissions
-            if (user.Employee?.Designation != null)
             {
-                permissionSet.UnionWith(
-                    user.Employee.Designation
-                        .DesignationPermissions
-                        .Select(x => x.Permission.Name));
+                return new List<string>();
             }
 
-            permissions = permissionSet.ToList();
+            var permissionSet =
+                new HashSet<string>(
+                    StringComparer.OrdinalIgnoreCase);
+
+            var isEmployee =
+                user.UserRoles.Any(x =>
+                    x.Role.RoleName == "Employee");
+
+            if (isEmployee)
+            {
+                // Employee → Designation Permissions ONLY
+
+                if (user.Employee?.Designation != null)
+                {
+                    permissionSet.UnionWith(
+                        user.Employee.Designation
+                            .DesignationPermissions
+                            .Select(x => x.Permission.Name));
+                }
+            }
+            else
+            {
+                // Admin / Student / Parent(Future)
+                // → Role Permissions
+
+                permissionSet.UnionWith(
+                    user.UserRoles
+                        .SelectMany(x =>
+                            x.Role.RolePermissions)
+                        .Select(x =>
+                            x.Permission.Name));
+            }
+
+            permissions =
+                permissionSet.ToList();
 
             _cache.Set(
                 cacheKey,
                 permissions,
-                TimeSpan.FromHours(1));
+                TimeSpan.FromMinutes(30));
 
             return permissions;
         }
 
-        public void RemoveUserPermissions(long userId)
+        public void RemoveUserPermissions(
+            long userId)
         {
-            _cache.Remove($"user_permissions_{userId}");
+            _cache.Remove(
+                $"user_permissions_{userId}");
         }
 
-
-
-        // To remove permissions immeadiately after someone revokes them because they may be in cache
-        
+        /// <summary>
+        /// Remove cache for all users
+        /// belonging to a designation.
+        /// Used after grant/revoke designation permission.
+        /// </summary>
         public async Task RemoveDesignationUsersPermissionsAsync(
-    long designationId)
+            long designationId)
         {
-            var userIds = await _context.Employees
-                .Where(x => x.DesignationId == designationId)
-                .Select(x => x.UserId)
-                .ToListAsync();
+            var userIds =
+                await _context.Employees
+                    .Where(x =>
+                        x.DesignationId ==
+                        designationId)
+                    .Select(x =>
+                        x.UserId)
+                    .ToListAsync();
 
             foreach (var userId in userIds)
             {
@@ -100,14 +132,22 @@ namespace LearnFlowERP.Infrastructure.Security
             }
         }
 
+        /// <summary>
+        /// Remove cache for all users
+        /// belonging to a role.
+        /// Used after grant/revoke role permission.
+        /// </summary>
         public async Task RemoveRoleUsersPermissionsAsync(
-    long roleId)
+            long roleId)
         {
-            var userIds = await _context.UserRoles
-                .Where(x => x.RoleId == roleId)
-                .Select(x => x.UserId)
-                .Distinct()
-                .ToListAsync();
+            var userIds =
+                await _context.UserRoles
+                    .Where(x =>
+                        x.RoleId == roleId)
+                    .Select(x =>
+                        x.UserId)
+                    .Distinct()
+                    .ToListAsync();
 
             foreach (var userId in userIds)
             {

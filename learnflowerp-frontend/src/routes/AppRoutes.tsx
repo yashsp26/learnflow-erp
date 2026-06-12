@@ -8,6 +8,8 @@ import CoursesPage from "../features/courses/CoursesPage";
 import ForgotPasswordPage from "../features/auth/ForgotPasswordPage";
 import ResetPasswordPage from "../features/auth/ResetPasswordPage";
 import AppLayout from "../components/layout/AppLayout";
+import DesignationsPage from "../features/designations/DesignationsPage";
+import PermissionsPage from "../features/permissions/PermissionsPage";
 
 export default function AppRoutes() {
   return (
@@ -27,6 +29,10 @@ export default function AppRoutes() {
           <Route path="/students" element={<StudentsPage />} />
 
           <Route path="/courses" element={<CoursesPage />} />
+
+          <Route path="/designations" element={<DesignationsPage />} />
+
+          <Route path="/permissions" element={<PermissionsPage />} />
         </Route>
       </Routes>
     </BrowserRouter>

@@ -71,5 +71,15 @@ namespace LearnFlowERP.Api.Controllers
                 "application/pdf",
                 $"Receipt-{receipt.ReceiptNumber}.pdf");
         }
+
+
+        [Permission("ViewPayment")]
+        [HttpGet("{paymentId}/receipt")]
+        public async Task<IActionResult> Receipt(long paymentId)
+        {
+            return Ok(
+                await _mediator.Send(
+                    new GetReceiptByPaymentIdQuery(paymentId)));
+        }
     }
 }
