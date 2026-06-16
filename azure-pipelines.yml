@@ -59,14 +59,13 @@ stages:
 
     - script: |
         cd $(frontendPath)
-        npm ci
         npm run build
       displayName: 'Build Frontend'
 
     - task: PublishBuildArtifacts@1
       displayName: 'Publish Frontend Artifact'
       inputs:
-        PathtoPublish: '$(frontendPath)/dist'
+        PathtoPublish: '$(Build.SourcesDirectory)/$(frontendPath)/dist'
         ArtifactName: 'frontend'
       condition: succeeded()
 
