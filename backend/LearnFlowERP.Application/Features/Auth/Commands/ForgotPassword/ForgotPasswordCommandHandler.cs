@@ -46,8 +46,32 @@ namespace LearnFlowERP.Application.Features.Auth.Commands.ForgotPassword
 
             await _emailService.SendAsync(
                 request.Email,
-                "Password Reset OTP",
-                $"Your OTP is: {otp}");
+                "Password Reset Verification Code",
+                $@"
+                <div style='font-family: Arial, sans-serif;'>
+                    <h2>Password Reset Request</h2>
+                    <p>We received a request to reset your password.</p>
+
+                    <p>Your verification code is:</p>
+
+                    <div style='
+                        font-size: 28px;
+                        font-weight: bold;
+                        letter-spacing: 5px;
+                        color: #2563eb;
+                        margin: 20px 0;'>
+                        {otp}
+                    </div>
+
+                    <p>This code will expire in <strong>10 minutes</strong>.</p>
+
+                    <p>If you did not request a password reset, you can safely ignore this email.</p>
+
+                    <p><strong>Never share this code with anyone.</strong></p>
+
+                    <br />
+                    <p>Regards,<br />LearnFlow ERP Team</p>
+                </div>");
 
             return Unit.Value;
         }

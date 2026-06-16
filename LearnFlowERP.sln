@@ -11,7 +11,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LearnFlowERP.Domain", "back
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LearnFlowERP.Infrastructure", "backend\LearnFlowERP.Infrastructure\LearnFlowERP.Infrastructure.csproj", "{CD370799-B14C-469D-9698-E4ED70188621}"
 EndProject
-Project("{54A90642-561A-4BB1-A94E-469ADEE60C69}") = "learnflowerp-frontend", "learnflowerp-frontend\learnflowerp-frontend.esproj", "{FF4E3B01-C68C-4CE2-BC5D-FE4CD27C8E12}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LearnFlowERP.Application.Tests", "tests\LearnFlowERP.Application.Tests\LearnFlowERP.Application.Tests.csproj", "{31E8D3F1-7701-4CDE-BF59-1183265E7832}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -35,12 +35,10 @@ Global
 		{CD370799-B14C-469D-9698-E4ED70188621}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CD370799-B14C-469D-9698-E4ED70188621}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CD370799-B14C-469D-9698-E4ED70188621}.Release|Any CPU.Build.0 = Release|Any CPU
-		{FF4E3B01-C68C-4CE2-BC5D-FE4CD27C8E12}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{FF4E3B01-C68C-4CE2-BC5D-FE4CD27C8E12}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{FF4E3B01-C68C-4CE2-BC5D-FE4CD27C8E12}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
-		{FF4E3B01-C68C-4CE2-BC5D-FE4CD27C8E12}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{FF4E3B01-C68C-4CE2-BC5D-FE4CD27C8E12}.Release|Any CPU.Build.0 = Release|Any CPU
-		{FF4E3B01-C68C-4CE2-BC5D-FE4CD27C8E12}.Release|Any CPU.Deploy.0 = Release|Any CPU
+		{31E8D3F1-7701-4CDE-BF59-1183265E7832}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{31E8D3F1-7701-4CDE-BF59-1183265E7832}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{31E8D3F1-7701-4CDE-BF59-1183265E7832}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{31E8D3F1-7701-4CDE-BF59-1183265E7832}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
