@@ -59,12 +59,10 @@ namespace LearnFlowERP.Application.Features.Users.Commands
 
             _context.Users.Add(user);
 
-            try
-            {
-                await _emailService.SendAsync(
-                    user.Email,
-                    "Your ERP Account Has Been Created",
-                    $"""
+            await _emailService.SendAsync(
+                user.Email,
+                "Your ERP Account Has Been Created",
+                $"""
                 <div style="font-family: Arial, sans-serif; line-height: 1.6;">
                     <h2 style="color:#2563eb;">Welcome to LearnFlow ERP</h2>
             
@@ -95,13 +93,8 @@ namespace LearnFlowERP.Application.Features.Users.Commands
                 </p>
                 </div>
                 """
-                );
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(
-                    $"Email failed: {ex.Message}");
-            }
+            );
+
 
             await _context.SaveChangesAsync(cancellationToken);
 

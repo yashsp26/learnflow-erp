@@ -1,7 +1,6 @@
 ﻿using LearnFlowERP.Application.Common.Exceptions;
 using LearnFlowERP.Application.Common.Interfaces;
 using LearnFlowERP.Application.Features.Users.DTOs;
-using LearnFlowERP.Domain.Entities;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 

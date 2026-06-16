@@ -1,5 +1,4 @@
-﻿using LearnFlowERP.Domain.Enums;
-using MediatR;
+﻿using MediatR;
 
 namespace LearnFlowERP.Application.Features.Users.Commands
 {

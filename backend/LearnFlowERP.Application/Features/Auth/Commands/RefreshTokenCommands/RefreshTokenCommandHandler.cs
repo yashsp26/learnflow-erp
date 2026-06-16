@@ -1,6 +1,5 @@
 ﻿using LearnFlowERP.Application.Common.Interfaces;
 using LearnFlowERP.Application.Features.Auth.Commands.DTOs;
-using LearnFlowERP.Domain.Entities;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
