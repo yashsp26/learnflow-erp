@@ -1,0 +1,127 @@
+trigger:
+  branches:
+    include:
+      - master
+
+pool:
+  vmImage: 'windows-latest'
+
+variables:
+  buildPlatform: 'Any CPU'
+  buildConfiguration: 'Release'
+  solution: 'LearnFlowERP.sln'
+  frontendPath: 'learnflowerp-frontend'
+
+stages:
+
+# ==================================================
+# FRONTEND LINT
+# ==================================================
+- stage: FrontendLint
+  displayName: 'Frontend Lint'
+
+  jobs:
+  - job: Lint
+    displayName: 'Run ESLint'
+
+    steps:
+
+    - checkout: self
+
+    - task: UseNode@1
+      inputs:
+        version: '22.x'
+
+    - script: |
+        cd $(frontendPath)
+        npm ci
+        npm run lint
+      displayName: 'Lint Frontend'
+
+
+# ==================================================
+# FRONTEND BUILD
+# ==================================================
+- stage: FrontendBuild
+  displayName: 'Frontend Build'
+  dependsOn: FrontendLint
+
+  jobs:
+  - job: BuildFrontend
+
+    steps:
+
+    - checkout: self
+
+    - task: UseNode@1
+      inputs:
+        version: '22.x'
+
+    - script: |
+        cd $(frontendPath)
+        npm ci
+        npm run build
+      displayName: 'Build Frontend'
+
+    - task: PublishBuildArtifacts@1
+      displayName: 'Publish Frontend Artifact'
+      inputs:
+        PathtoPublish: '$(frontendPath)/dist'
+        ArtifactName: 'frontend'
+      condition: succeeded()
+
+
+# ==================================================
+# BACKEND BUILD
+# ==================================================
+- stage: BackendBuild
+  displayName: 'Backend Build'
+  dependsOn: FrontendBuild
+
+  jobs:
+  - job: BuildBackend
+
+    steps:
+
+    - checkout: self
+
+    - task: NuGetToolInstaller@1
+
+    - task: NuGetCommand@2
+      displayName: 'Restore NuGet Packages'
+      inputs:
+        restoreSolution: '$(solution)'
+
+    - task: VSBuild@1
+      displayName: 'Build Backend'
+      inputs:
+        solution: '$(solution)'
+        platform: '$(buildPlatform)'
+        configuration: '$(buildConfiguration)'
+
+    - task: PublishBuildArtifacts@1
+      displayName: 'Publish Backend Artifact'
+      inputs:
+        PathtoPublish: '$(Build.SourcesDirectory)'
+        ArtifactName: 'backend'
+
+
+# ==================================================
+# BACKEND TESTS
+# ==================================================
+- stage: BackendTests
+  displayName: 'Backend Tests'
+  dependsOn: BackendBuild
+
+  jobs:
+  - job: RunTests
+
+    steps:
+
+    - checkout: self
+
+    - task: VSTest@2
+      displayName: 'Run Unit Tests'
+      inputs:
+        platform: '$(buildPlatform)'
+        configuration: '$(buildConfiguration)'
