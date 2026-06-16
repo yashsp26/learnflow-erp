@@ -12,11 +12,11 @@ variables:
   solution: 'LearnFlowERP.sln'
   frontendPath: 'learnflowerp-frontend'
 
-stages:
-
 # ==================================================
 # FRONTEND LINT
 # ==================================================
+stages:
+
 - stage: FrontendLint
   displayName: 'Frontend Lint'
 
@@ -25,7 +25,6 @@ stages:
     displayName: 'Run ESLint'
 
     steps:
-
     - checkout: self
 
     - task: UseNode@1
@@ -34,10 +33,9 @@ stages:
 
     - script: |
         cd $(frontendPath)
-        npm ci
+        npm ci --include=dev
         npm run lint
       displayName: 'Lint Frontend'
-
 
 # ==================================================
 # FRONTEND BUILD
@@ -48,9 +46,9 @@ stages:
 
   jobs:
   - job: BuildFrontend
+    displayName: 'Build Frontend'
 
     steps:
-
     - checkout: self
 
     - task: UseNode@1
@@ -59,16 +57,34 @@ stages:
 
     - script: |
         cd $(frontendPath)
+        npm ci --include=dev
+        npm ls typescript
+        dir node_modules\.bin
         npm run build
       displayName: 'Build Frontend'
+
+    - powershell: |
+        Write-Host "Build.SourcesDirectory = $(Build.SourcesDirectory)"
+
+        Write-Host ""
+        Write-Host "Repository Root:"
+        Get-ChildItem "$(Build.SourcesDirectory)"
+
+        Write-Host ""
+        Write-Host "Frontend Folder:"
+        Get-ChildItem "$(Build.SourcesDirectory)\$(frontendPath)"
+
+        Write-Host ""
+        Write-Host "Dist Folder:"
+        Get-ChildItem "$(Build.SourcesDirectory)\$(frontendPath)\dist" -ErrorAction SilentlyContinue
+      displayName: 'Verify Frontend Output'
 
     - task: PublishBuildArtifacts@1
       displayName: 'Publish Frontend Artifact'
       inputs:
-        PathtoPublish: '$(Build.SourcesDirectory)/$(frontendPath)/dist'
+        PathtoPublish: '$(Build.SourcesDirectory)\$(frontendPath)\dist'
         ArtifactName: 'frontend'
       condition: succeeded()
-
 
 # ==================================================
 # BACKEND BUILD
@@ -79,9 +95,9 @@ stages:
 
   jobs:
   - job: BuildBackend
+    displayName: 'Build Backend'
 
     steps:
-
     - checkout: self
 
     - task: NuGetToolInstaller@1
@@ -104,7 +120,6 @@ stages:
         PathtoPublish: '$(Build.SourcesDirectory)'
         ArtifactName: 'backend'
 
-
 # ==================================================
 # BACKEND TESTS
 # ==================================================
@@ -114,9 +129,9 @@ stages:
 
   jobs:
   - job: RunTests
+    displayName: 'Run Unit Tests'
 
     steps:
-
     - checkout: self
 
     - task: VSTest@2
