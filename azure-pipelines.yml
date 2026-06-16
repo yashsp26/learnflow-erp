@@ -59,6 +59,10 @@ stages:
         version: '22.x'
 
     - script: |
+        echo ==================================
+        echo PIPELINE VERSION 2026-06-16-v3
+        echo ==================================
+
         echo ===== NODE =====
         node --version
 
@@ -77,17 +81,24 @@ stages:
       displayName: 'Install & Build Frontend'
 
     - powershell: |
-        Write-Host "Checking dist folder..."
+        $distPath = "$(Build.SourcesDirectory)\$(frontendPath)\dist"
 
-        if (!(Test-Path "$(Build.SourcesDirectory)\$(frontendPath)\dist"))
-        {
-            Write-Error "dist folder was not generated."
-            exit 1
+        Write-Host "Checking: $distPath"
+
+        if (!(Test-Path $distPath)) {
+          Write-Host "Repository Root:"
+          Get-ChildItem "$(Build.SourcesDirectory)"
+
+          Write-Host ""
+          Write-Host "Frontend Folder:"
+          Get-ChildItem "$(Build.SourcesDirectory)\$(frontendPath)" -ErrorAction SilentlyContinue
+
+          Write-Error "dist folder was not generated."
+          exit 1
         }
 
         Write-Host "dist folder exists."
-
-        Get-ChildItem "$(Build.SourcesDirectory)\$(frontendPath)\dist" -Recurse
+        Get-ChildItem $distPath -Recurse
       displayName: 'Validate Frontend Output'
 
     - task: PublishBuildArtifacts@1
@@ -148,7 +159,7 @@ stages:
     - task: VSTest@2
       displayName: 'Run Unit Tests'
       inputs:
-        platform: '$(buildPlatform)'
-        configuration: '$(buildConfiguration)'
         testSelector: 'testAssemblies'
         searchFolder: '$(System.DefaultWorkingDirectory)'
+        platform: '$(buildPlatform)'
+        configuration: '$(buildConfiguration)'
