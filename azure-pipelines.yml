@@ -12,11 +12,11 @@ variables:
   solution: 'LearnFlowERP.sln'
   frontendPath: 'learnflowerp-frontend'
 
+stages:
+
 # ==================================================
 # FRONTEND LINT
 # ==================================================
-stages:
-
 - stage: FrontendLint
   displayName: 'Frontend Lint'
 
@@ -32,10 +32,13 @@ stages:
         version: '22.x'
 
     - script: |
-        cd $(frontendPath)
+        node --version
+        npm --version
+
         npm ci --include=dev
         npm run lint
-      displayName: 'Lint Frontend'
+      workingDirectory: '$(frontendPath)'
+      displayName: 'Install Dependencies & Run ESLint'
 
 # ==================================================
 # FRONTEND BUILD
@@ -56,35 +59,42 @@ stages:
         version: '22.x'
 
     - script: |
-        cd $(frontendPath)
+        echo ===== NODE =====
+        node --version
+
+        echo ===== NPM =====
+        npm --version
+
+        echo ===== INSTALL =====
         npm ci --include=dev
+
+        echo ===== TYPESCRIPT =====
         npm ls typescript
-        dir node_modules\.bin
+
+        echo ===== BUILD =====
         npm run build
-      displayName: 'Build Frontend'
+      workingDirectory: '$(frontendPath)'
+      displayName: 'Install & Build Frontend'
 
     - powershell: |
-        Write-Host "Build.SourcesDirectory = $(Build.SourcesDirectory)"
+        Write-Host "Checking dist folder..."
 
-        Write-Host ""
-        Write-Host "Repository Root:"
-        Get-ChildItem "$(Build.SourcesDirectory)"
+        if (!(Test-Path "$(Build.SourcesDirectory)\$(frontendPath)\dist"))
+        {
+            Write-Error "dist folder was not generated."
+            exit 1
+        }
 
-        Write-Host ""
-        Write-Host "Frontend Folder:"
-        Get-ChildItem "$(Build.SourcesDirectory)\$(frontendPath)"
+        Write-Host "dist folder exists."
 
-        Write-Host ""
-        Write-Host "Dist Folder:"
-        Get-ChildItem "$(Build.SourcesDirectory)\$(frontendPath)\dist" -ErrorAction SilentlyContinue
-      displayName: 'Verify Frontend Output'
+        Get-ChildItem "$(Build.SourcesDirectory)\$(frontendPath)\dist" -Recurse
+      displayName: 'Validate Frontend Output'
 
     - task: PublishBuildArtifacts@1
       displayName: 'Publish Frontend Artifact'
       inputs:
         PathtoPublish: '$(Build.SourcesDirectory)\$(frontendPath)\dist'
         ArtifactName: 'frontend'
-      condition: succeeded()
 
 # ==================================================
 # BACKEND BUILD
@@ -113,6 +123,7 @@ stages:
         solution: '$(solution)'
         platform: '$(buildPlatform)'
         configuration: '$(buildConfiguration)'
+        clean: true
 
     - task: PublishBuildArtifacts@1
       displayName: 'Publish Backend Artifact'
@@ -139,3 +150,5 @@ stages:
       inputs:
         platform: '$(buildPlatform)'
         configuration: '$(buildConfiguration)'
+        testSelector: 'testAssemblies'
+        searchFolder: '$(System.DefaultWorkingDirectory)'
