@@ -54,31 +54,29 @@ stages:
     steps:
     - checkout: self
 
-    - task: UseNode@1
-      inputs:
-        version: '22.x'
-
-    - script: |
-        echo ==================================
-        echo PIPELINE VERSION 2026-06-16-v3
-        echo ==================================
-
-        echo ===== NODE =====
-        node --version
-
-        echo ===== NPM =====
-        npm --version
-
-        echo ===== INSTALL =====
-        npm ci --include=dev
-
-        echo ===== TYPESCRIPT =====
-        npm ls typescript
-
-        echo ===== BUILD =====
-        npm run build
-      workingDirectory: '$(frontendPath)'
+    - task: CmdLine@2
       displayName: 'Install & Build Frontend'
+      inputs:
+        script: |
+          echo ==================================
+          echo PIPELINE VERSION 2026-06-16-v3
+          echo ==================================
+
+          echo ===== NODE =====
+          call node --version
+
+          echo ===== NPM =====
+          call npm --version
+
+          echo ===== INSTALL =====
+          call npm ci --include=dev
+
+          echo ===== TYPESCRIPT =====
+          call npm ls typescript
+
+          echo ===== BUILD =====
+          call npm run build
+        workingDirectory: '$(frontendPath)'
 
     - powershell: |
         $distPath = "$(Build.SourcesDirectory)\$(frontendPath)\dist"
