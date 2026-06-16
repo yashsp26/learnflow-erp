@@ -4,8 +4,6 @@ namespace LearnFlowERP.Application.Features.Onboarding.Students.Commands.Complet
 {
     public class CompleteStudentProfileCommand : IRequest<Unit>
     {
-        public string EnrollmentNo { get; set; } = null!;
-
         public string FirstName { get; set; } = null!;
 
         public string LastName { get; set; } = null!;
