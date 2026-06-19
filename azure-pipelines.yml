@@ -260,24 +260,21 @@ stages:
     - job: DockerValidation
       displayName: 'Validate Docker Compose'
 
+      pool:
+        vmImage: 'ubuntu-latest'
+
       steps:
         - checkout: self
 
-        - task: CmdLine@2
+        - script: |
+            docker --version
+            docker compose version
           displayName: 'Docker Version'
-          inputs:
-            script: |
-              docker --version
-              docker compose version
 
-        - task: CmdLine@2
+        - script: |
+            docker compose config
           displayName: 'Validate docker-compose.yml'
-          inputs:
-            script: |
-              docker compose config
 
-        - task: CmdLine@2
+        - script: |
+            docker compose build
           displayName: 'Build Docker Images'
-          inputs:
-            script: |
-              docker compose build
