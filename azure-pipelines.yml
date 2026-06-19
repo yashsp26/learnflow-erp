@@ -113,18 +113,19 @@ stages:
               Write-Host "dist folder exists."
               Get-ChildItem $distPath -Recurse
 
-        - task: PublishBuildArtifacts@1
+        - task: PublishPipelineArtifact@1
           displayName: 'Publish Frontend Artifact'
           inputs:
-            PathtoPublish: '$(Build.SourcesDirectory)\$(frontendPath)\dist'
-            ArtifactName: 'frontend'
+            targetPath: '$(Build.SourcesDirectory)\$(frontendPath)\dist'
+            artifact: 'frontend'
             
 # ==========================
 # BACKEND BUILD
 # ==========================
 - stage: BackendBuild
   displayName: 'Backend Build'
-  dependsOn: FrontendBuild
+  dependsOn:
+    - FrontendBuild
 
   jobs:
     - job: BuildBackend
@@ -154,11 +155,33 @@ stages:
             configuration: '$(buildConfiguration)'
             clean: true
 
-        - task: PublishBuildArtifacts@1
+        - task: DotNetCoreCLI@2
+          displayName: 'Publish API'
+          inputs:
+            command: publish
+            publishWebProjects: false
+            projects: 'backend/LearnFlowERP.Api/LearnFlowERP.Api.csproj'
+            arguments: >
+              --configuration $(buildConfiguration)
+              --output $(Build.ArtifactStagingDirectory)/backend
+            zipAfterPublish: false
+
+        - task: PowerShell@2
+          displayName: 'Verify Publish Output'
+          inputs:
+            targetType: inline
+            script: |
+              Write-Host "Published files:"
+              Get-ChildItem "$(Build.ArtifactStagingDirectory)\backend" -Recurse
+
+              $count = (Get-ChildItem "$(Build.ArtifactStagingDirectory)\backend" -Recurse | Measure-Object).Count
+              Write-Host "Total files: $count"
+
+        - task: PublishPipelineArtifact@1
           displayName: 'Publish Backend Artifact'
           inputs:
-            PathtoPublish: '$(Build.SourcesDirectory)'
-            ArtifactName: 'backend'
+            targetPath: '$(Build.ArtifactStagingDirectory)\backend'
+            artifact: 'backend'
 
 # ==========================
 # BACKEND TESTS
