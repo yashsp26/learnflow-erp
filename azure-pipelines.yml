@@ -7,157 +7,221 @@ pool:
   vmImage: 'windows-latest'
 
 variables:
-  buildPlatform: 'Any CPU'
-  buildConfiguration: 'Release'
-  solution: 'LearnFlowERP.sln'
-  frontendPath: 'learnflowerp-frontend'
+  - name: buildPlatform
+    value: 'Any CPU'
+
+  - name: buildConfiguration
+    value: 'Release'
+
+  - name: solution
+    value: 'LearnFlowERP.sln'
+
+  - name: frontendPath
+    value: 'learnflowerp-frontend'
 
 stages:
 
-# ==================================================
+# ==========================
 # FRONTEND LINT
-# ==================================================
+# ==========================
 - stage: FrontendLint
   displayName: 'Frontend Lint'
 
   jobs:
-  - job: Lint
-    displayName: 'Run ESLint'
+    - job: Lint
+      displayName: 'Run ESLint'
 
-    steps:
-    - checkout: self
+      steps:
+        - checkout: self
 
-    - task: UseNode@1
-      inputs:
-        version: '22.x'
+        - task: UseNode@1
+          inputs:
+            version: '22.x'
 
-    - script: |
-        node --version
-        npm --version
+        - task: CmdLine@2
+          displayName: 'Install Dependencies & Run ESLint'
+          inputs:
+            workingDirectory: '$(frontendPath)'
+            script: |
+              node --version
+              npm --version
 
-        npm ci --include=dev
-        npm run lint
-      workingDirectory: '$(frontendPath)'
-      displayName: 'Install Dependencies & Run ESLint'
+              npm ci --include=dev
+              npm run lint
 
-# ==================================================
+# ==========================
 # FRONTEND BUILD
-# ==================================================
+# ==========================
 - stage: FrontendBuild
   displayName: 'Frontend Build'
   dependsOn: FrontendLint
 
   jobs:
-  - job: BuildFrontend
-    displayName: 'Build Frontend'
+    - job: BuildFrontend
+      displayName: 'Build Frontend'
 
-    steps:
-    - checkout: self
+      steps:
+        - checkout: self
 
-    - task: CmdLine@2
-      displayName: 'Install & Build Frontend'
-      inputs:
-        script: |
-          echo ==================================
-          echo PIPELINE VERSION 2026-06-16-v3
-          echo ==================================
+        - task: UseNode@1
+          inputs:
+            version: '22.x'
 
-          echo ===== NODE =====
-          call node --version
+        - task: CmdLine@2
+          displayName: 'Install & Build Frontend'
+          inputs:
+            workingDirectory: '$(frontendPath)'
+            script: |
+              node --version
+              npm --version
 
-          echo ===== NPM =====
-          call npm --version
+              npm ci --include=dev
 
-          echo ===== INSTALL =====
-          call npm ci --include=dev
+              npm run build
 
-          echo ===== TYPESCRIPT =====
-          call npm ls typescript
+        - task: PowerShell@2
+          displayName: 'Validate Frontend Output'
+          inputs:
+            targetType: inline
+            script: |
+              $distPath = "$(Build.SourcesDirectory)\$(frontendPath)\dist"
 
-          echo ===== BUILD =====
-          call npm run build
-        workingDirectory: '$(frontendPath)'
+              if (!(Test-Path $distPath)) {
+                Write-Error "dist folder was not generated."
+                exit 1
+              }
 
-    - powershell: |
-        $distPath = "$(Build.SourcesDirectory)\$(frontendPath)\dist"
+              Write-Host "dist folder exists."
+              Get-ChildItem $distPath -Recurse
 
-        Write-Host "Checking: $distPath"
+        - task: PublishBuildArtifacts@1
+          displayName: 'Publish Frontend Artifact'
+          inputs:
+            PathtoPublish: '$(Build.SourcesDirectory)\$(frontendPath)\dist'
+            ArtifactName: 'frontend'
 
-        if (!(Test-Path $distPath)) {
-          Write-Host "Repository Root:"
-          Get-ChildItem "$(Build.SourcesDirectory)"
-
-          Write-Host ""
-          Write-Host "Frontend Folder:"
-          Get-ChildItem "$(Build.SourcesDirectory)\$(frontendPath)" -ErrorAction SilentlyContinue
-
-          Write-Error "dist folder was not generated."
-          exit 1
-        }
-
-        Write-Host "dist folder exists."
-        Get-ChildItem $distPath -Recurse
-      displayName: 'Validate Frontend Output'
-
-    - task: PublishBuildArtifacts@1
-      displayName: 'Publish Frontend Artifact'
-      inputs:
-        PathtoPublish: '$(Build.SourcesDirectory)\$(frontendPath)\dist'
-        ArtifactName: 'frontend'
-
-# ==================================================
+# ==========================
 # BACKEND BUILD
-# ==================================================
+# ==========================
 - stage: BackendBuild
   displayName: 'Backend Build'
   dependsOn: FrontendBuild
 
   jobs:
-  - job: BuildBackend
-    displayName: 'Build Backend'
-
-    steps:
-    - checkout: self
-
-    - task: NuGetToolInstaller@1
-
-    - task: NuGetCommand@2
-      displayName: 'Restore NuGet Packages'
-      inputs:
-        restoreSolution: '$(solution)'
-
-    - task: VSBuild@1
+    - job: BuildBackend
       displayName: 'Build Backend'
-      inputs:
-        solution: '$(solution)'
-        platform: '$(buildPlatform)'
-        configuration: '$(buildConfiguration)'
-        clean: true
 
-    - task: PublishBuildArtifacts@1
-      displayName: 'Publish Backend Artifact'
-      inputs:
-        PathtoPublish: '$(Build.SourcesDirectory)'
-        ArtifactName: 'backend'
+      steps:
+        - checkout: self
 
-# ==================================================
+        - task: UseDotNet@2
+          displayName: '.NET 8 SDK'
+          inputs:
+            packageType: sdk
+            version: '8.0.x'
+
+        - task: NuGetToolInstaller@1
+
+        - task: NuGetCommand@2
+          displayName: 'Restore NuGet Packages'
+          inputs:
+            restoreSolution: '$(solution)'
+
+        - task: VSBuild@1
+          displayName: 'Build Backend'
+          inputs:
+            solution: '$(solution)'
+            platform: '$(buildPlatform)'
+            configuration: '$(buildConfiguration)'
+            clean: true
+
+        - task: PublishBuildArtifacts@1
+          displayName: 'Publish Backend Artifact'
+          inputs:
+            PathtoPublish: '$(Build.SourcesDirectory)'
+            ArtifactName: 'backend'
+
+# ==========================
 # BACKEND TESTS
-# ==================================================
+# ==========================
 - stage: BackendTests
   displayName: 'Backend Tests'
   dependsOn: BackendBuild
 
   jobs:
-  - job: RunTests
-    displayName: 'Run Unit Tests'
-
-    steps:
-    - checkout: self
-
-    - task: VSTest@2
+    - job: RunTests
       displayName: 'Run Unit Tests'
-      inputs:
-        testSelector: 'testAssemblies'
-        searchFolder: '$(System.DefaultWorkingDirectory)'
-        platform: '$(buildPlatform)'
-        configuration: '$(buildConfiguration)'
+
+      steps:
+        - checkout: self
+
+        - task: VSTest@2
+          displayName: 'Run Unit Tests'
+          inputs:
+            testSelector: 'testAssemblies'
+            searchFolder: '$(System.DefaultWorkingDirectory)'
+            platform: '$(buildPlatform)'
+            configuration: '$(buildConfiguration)'
+
+# ==========================
+# SECURITY CHECKS
+# ==========================
+- stage: SecurityChecks
+  displayName: 'Security Checks'
+  dependsOn: BackendTests
+
+  jobs:
+    - job: Security
+      displayName: 'Dependency Scanning'
+
+      steps:
+        - checkout: self
+
+        - task: UseDotNet@2
+          inputs:
+            packageType: sdk
+            version: '8.0.x'
+
+        - task: UseNode@1
+          inputs:
+            version: '22.x'
+
+        - script: |
+            dotnet list backend/LearnFlowERP.Api/LearnFlowERP.Api.csproj package --vulnerable
+          displayName: '.NET Vulnerability Scan'
+
+        - script: |
+            cd $(frontendPath)
+            npm audit --audit-level=high
+          displayName: 'NPM Audit'
+
+# ==========================
+# DOCKER VALIDATION
+# ==========================
+- stage: DockerValidation
+  displayName: 'Docker Validation'
+  dependsOn: SecurityChecks
+
+  jobs:
+    - job: DockerValidation
+      displayName: 'Validate Docker Compose'
+
+      steps:
+        - checkout: self
+
+        - task: DockerInstaller@0
+          inputs:
+            dockerVersion: 'latest'
+
+        - script: |
+            docker --version
+            docker compose version
+          displayName: 'Docker Version'
+
+        - script: |
+            docker compose config
+          displayName: 'Validate docker-compose.yml'
+
+        - script: |
+            docker compose build
+          displayName: 'Build Docker Images'
