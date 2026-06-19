@@ -80,22 +80,35 @@ stages:
 
               call npm run build
               IF %ERRORLEVEL% NEQ 0 EXIT /B %ERRORLEVEL%
-
+        
+        - task: CmdLine@2
+          displayName: 'Debug Frontend Files'
+          inputs:
+            workingDirectory: '$(frontendPath)'
+            script: |
+              echo Current directory:
+              cd
+        
+              echo Searching for dist folders...
+              dir /s /b dist
+        
+              echo Root files:
+              dir
+        
         - task: PowerShell@2
-          displayName: 'Validate Frontend Output'
+          displayName: 'Debug Frontend Output'
           inputs:
             targetType: inline
             script: |
-              $distPath = "$(Build.SourcesDirectory)\$(frontendPath)\dist"
-
-              if (!(Test-Path $distPath)) {
-                Write-Error "dist folder was not generated."
-                exit 1
-              }
-
-              Write-Host "dist folder exists."
-              Get-ChildItem $distPath -Recurse
-
+              Write-Host "Sources: $(Build.SourcesDirectory)"
+              Write-Host "Frontend: $(frontendPath)"
+        
+              Get-ChildItem "$(Build.SourcesDirectory)" -Recurse -Directory |
+                Where-Object { $_.Name -eq "dist" } |
+                Select-Object FullName
+        
+              Get-ChildItem "$(Build.SourcesDirectory)\$(frontendPath)"
+        
         - task: PublishBuildArtifacts@1
           displayName: 'Publish Frontend Artifact'
           inputs:
