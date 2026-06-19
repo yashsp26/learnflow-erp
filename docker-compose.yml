@@ -1,0 +1,69 @@
+services:
+  database:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: learnflow-db
+
+    environment:
+      ACCEPT_EULA: "Y"
+      MSSQL_SA_PASSWORD: ${MSSQL_SA_PASSWORD}
+
+    ports:
+      - "14333:1433"
+
+    volumes:
+      - mssql_data:/var/opt/mssql
+
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P '$$MSSQL_SA_PASSWORD' -C -Q 'SELECT 1' || exit 1"
+        ]
+      interval: 15s
+      timeout: 10s
+      retries: 10
+      start_period: 30s
+
+  backend-api:
+    build:
+      context: .
+      dockerfile: backend/LearnFlowERP.Api/Dockerfile
+
+    container_name: learnflow-api
+
+    depends_on:
+      database:
+        condition: service_healthy
+
+    ports:
+      - "5000:8080"
+
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+
+      ConnectionStrings__DefaultConnection: Server=database;Database=LearnFlowERP;User Id=sa;Password=YourStrong@Pass123!;TrustServerCertificate=True;MultipleActiveResultSets=True
+
+      Jwt__Key: ${JWT_KEY}
+      Jwt__Issuer: ${JWT_ISSUER}
+      Jwt__Audience: ${JWT_AUDIENCE}
+
+      Brevo__ApiKey: ${BREVO_API_KEY}
+
+      Supabase__Url: ${SUPABASE_URL}
+      Supabase__ApiKey: ${SUPABASE_API_KEY}
+
+  frontend:
+    build:
+      context: ./learnflowerp-frontend
+      dockerfile: Dockerfile
+
+    container_name: learnflow-frontend
+
+    depends_on:
+      - backend-api
+
+    ports:
+      - "3000:80"
+
+volumes:
+  mssql_data:
