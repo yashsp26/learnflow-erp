@@ -33,6 +33,8 @@ namespace LearnFlowERP.Application.Features.Auth.Commands.Login
         {
             var email = request.Email.ToLower();
 
+            Console.WriteLine($"TenantCode Received: '{request.TenantCode}'");
+
             var tenant = await _cache.GetOrCreateAsync(
                 $"tenant_{request.TenantCode}",
                 async entry =>
@@ -46,6 +48,8 @@ namespace LearnFlowERP.Application.Features.Auth.Commands.Login
                             t => t.Code == request.TenantCode,
                             cancellationToken);
                 });
+
+            Console.WriteLine($"TenantCode = '{request.TenantCode}'");
 
             if (tenant == null)
                 throw new InvalidOperationException("Invalid tenant");

@@ -53,16 +53,20 @@ builder.Services.AddScoped<IApplicationDbContext>(provider =>
     provider.GetRequiredService<AppDbContext>());
 
 // CORS
+var allowedOrigins = builder.Configuration
+    .GetSection("Cors:AllowedOrigins")
+    .Get<string[]>() ?? Array.Empty<string>();
+
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowFrontend",
-        policy =>
-        {
-            policy
-                .AllowAnyOrigin()
-                .AllowAnyHeader()
-                .AllowAnyMethod();
-        });
+    options.AddPolicy("AllowFrontend", policy =>
+    {
+        policy
+            .WithOrigins(allowedOrigins)
+            .AllowAnyHeader()
+            .AllowAnyMethod()
+            .AllowCredentials();
+    });
 });
 
 
@@ -296,5 +300,21 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+
+// --- AUTOMATIC DATABASE MIGRATION ON CONTAINER STARTUP ---
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+    try
+    {
+        var context = services.GetRequiredService<AppDbContext>();
+        context.Database.Migrate();
+    }
+    catch (Exception ex)
+    {
+        var logger = services.GetRequiredService<ILogger<Program>>();
+        logger.LogError(ex, "An error occurred while executing runtime database migrations.");
+    }
+}
 
 app.Run();
