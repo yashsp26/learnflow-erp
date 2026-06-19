@@ -67,54 +67,58 @@ stages:
           inputs:
             version: '22.x'
 
-        - task: CmdLine@2
+        - task: PowerShell@2
           displayName: 'Install & Build Frontend'
           inputs:
+            targetType: inline
             workingDirectory: '$(frontendPath)'
             script: |
+              Write-Host "Node Version:"
               node --version
+
+              Write-Host "NPM Version:"
               npm --version
 
-              call npm ci --include=dev
-              IF %ERRORLEVEL% NEQ 0 EXIT /B %ERRORLEVEL%
+              Write-Host "Installing dependencies..."
+              npm ci --include=dev
 
-              call npm run build
-              IF %ERRORLEVEL% NEQ 0 EXIT /B %ERRORLEVEL%
-        
-        - task: CmdLine@2
-          displayName: 'Debug Frontend Files'
-          inputs:
-            workingDirectory: '$(frontendPath)'
-            script: |
-              echo Current directory:
-              cd
-        
-              echo Searching for dist folders...
-              dir /s /b dist
-        
-              echo Root files:
-              dir
-        
+              if ($LASTEXITCODE -ne 0) {
+                throw "npm ci failed"
+              }
+
+              Write-Host "Building frontend..."
+              npm run build
+
+              if ($LASTEXITCODE -ne 0) {
+                throw "npm run build failed"
+              }
+
+              Write-Host "Contents after build:"
+              Get-ChildItem -Force
+              Get-ChildItem dist -Recurse
+
         - task: PowerShell@2
-          displayName: 'Debug Frontend Output'
+          displayName: 'Validate Frontend Output'
           inputs:
             targetType: inline
             script: |
-              Write-Host "Sources: $(Build.SourcesDirectory)"
-              Write-Host "Frontend: $(frontendPath)"
-        
-              Get-ChildItem "$(Build.SourcesDirectory)" -Recurse -Directory |
-                Where-Object { $_.Name -eq "dist" } |
-                Select-Object FullName
-        
-              Get-ChildItem "$(Build.SourcesDirectory)\$(frontendPath)"
-        
+              $distPath = "$(Build.SourcesDirectory)\$(frontendPath)\dist"
+
+              Write-Host "Checking: $distPath"
+
+              if (!(Test-Path $distPath)) {
+                throw "dist folder was not generated."
+              }
+
+              Write-Host "dist folder exists."
+              Get-ChildItem $distPath -Recurse
+
         - task: PublishBuildArtifacts@1
           displayName: 'Publish Frontend Artifact'
           inputs:
             PathtoPublish: '$(Build.SourcesDirectory)\$(frontendPath)\dist'
             ArtifactName: 'frontend'
-
+            
 # ==========================
 # BACKEND BUILD
 # ==========================
