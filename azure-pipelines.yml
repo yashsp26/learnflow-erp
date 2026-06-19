@@ -75,9 +75,11 @@ stages:
               node --version
               npm --version
 
-              npm ci --include=dev
+              call npm ci --include=dev
+              IF %ERRORLEVEL% NEQ 0 EXIT /B %ERRORLEVEL%
 
-              npm run build
+              call npm run build
+              IF %ERRORLEVEL% NEQ 0 EXIT /B %ERRORLEVEL%
 
         - task: PowerShell@2
           displayName: 'Validate Frontend Output'
