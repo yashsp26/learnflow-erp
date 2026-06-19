@@ -210,7 +210,8 @@ stages:
 # ==========================
 - stage: SecurityChecks
   displayName: 'Security Checks'
-  dependsOn: BackendTests
+  dependsOn:
+    - BackendTests
 
   jobs:
     - job: Security
@@ -228,14 +229,24 @@ stages:
           inputs:
             version: '22.x'
 
-        - script: |
-            dotnet list backend/LearnFlowERP.Api/LearnFlowERP.Api.csproj package --vulnerable
-          displayName: '.NET Vulnerability Scan'
+        - task: CmdLine@2
+          displayName: 'Restore Backend'
+          inputs:
+            script: |
+              dotnet restore backend/LearnFlowERP.Api/LearnFlowERP.Api.csproj
 
-        - script: |
-            cd $(frontendPath)
-            npm audit --audit-level=high
+        - task: CmdLine@2
+          displayName: '.NET Vulnerability Scan'
+          inputs:
+            script: |
+              dotnet list backend/LearnFlowERP.Api/LearnFlowERP.Api.csproj package --vulnerable
+
+        - task: CmdLine@2
           displayName: 'NPM Audit'
+          inputs:
+            script: |
+              cd $(frontendPath)
+              npm audit --audit-level=high
 
 # ==========================
 # DOCKER VALIDATION
