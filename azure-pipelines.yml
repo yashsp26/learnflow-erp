@@ -253,7 +253,8 @@ stages:
 # ==========================
 - stage: DockerValidation
   displayName: 'Docker Validation'
-  dependsOn: SecurityChecks
+  dependsOn:
+    - SecurityChecks
 
   jobs:
     - job: DockerValidation
@@ -262,19 +263,21 @@ stages:
       steps:
         - checkout: self
 
-        - task: DockerInstaller@0
-          inputs:
-            dockerVersion: 'latest'
-
-        - script: |
-            docker --version
-            docker compose version
+        - task: CmdLine@2
           displayName: 'Docker Version'
+          inputs:
+            script: |
+              docker --version
+              docker compose version
 
-        - script: |
-            docker compose config
+        - task: CmdLine@2
           displayName: 'Validate docker-compose.yml'
+          inputs:
+            script: |
+              docker compose config
 
-        - script: |
-            docker compose build
+        - task: CmdLine@2
           displayName: 'Build Docker Images'
+          inputs:
+            script: |
+              docker compose build
