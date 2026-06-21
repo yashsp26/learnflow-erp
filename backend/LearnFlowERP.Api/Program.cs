@@ -29,6 +29,7 @@ using System.Text.Json.Serialization;
 using LearnFlowERP.Infrastructure.BackgroundJobs;
 using FirebaseAdmin;
 using Google.Apis.Auth.OAuth2;
+using Microsoft.AspNetCore.HttpOverrides;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -46,7 +47,13 @@ builder.Services.AddDbContext<AppDbContext>(options =>
         builder.Configuration.GetConnectionString("DefaultConnection"),
         sqlOptions =>
         {
-            sqlOptions.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery);
+            sqlOptions.UseQuerySplittingBehavior(
+                QuerySplittingBehavior.SplitQuery);
+
+            sqlOptions.EnableRetryOnFailure(
+                maxRetryCount: 5,
+                maxRetryDelay: TimeSpan.FromSeconds(30),
+                errorNumbersToAdd: null);
         }));
 
 builder.Services.AddScoped<IApplicationDbContext>(provider =>
@@ -260,28 +267,45 @@ builder.Services.AddTransient<CorrelationIdHandler>();
 builder.Services.AddHttpClient("MyClient").AddHttpMessageHandler<CorrelationIdHandler>();
 
 
-FirebaseApp.Create(
-    new AppOptions
-    {
-        Credential =
-            GoogleCredential
-                .FromFile(
-                    "firebase-service-account.json")
-    });
+var firebaseJson =
+    builder.Configuration["Firebase:ServiceAccountJson"];
+
+if (!string.IsNullOrWhiteSpace(firebaseJson))
+{
+    FirebaseApp.Create(
+        new AppOptions
+        {
+            Credential =
+                GoogleCredential.FromJson(firebaseJson)
+        });
+}
 
 var app = builder.Build();
 
+app.UseForwardedHeaders(
+    new ForwardedHeadersOptions
+    {
+        ForwardedHeaders =
+            ForwardedHeaders.XForwardedFor |
+            ForwardedHeaders.XForwardedProto
+    });
+
 // Configure the HTTP request pipeline.
-//if (app.Environment.IsDevelopment())
-//{
+if (app.Environment.IsDevelopment() ||
+    app.Environment.IsStaging() ||
+    builder.Configuration.GetValue<bool>("EnableSwagger"))
+{
     app.UseSwagger();
 
     app.UseSwaggerUI(options =>
     {
-        options.SwaggerEndpoint("/swagger/v1/swagger.json", "LearnFlowERP API v1");
-        options.RoutePrefix = "swagger"; // optional but clean
+        options.SwaggerEndpoint(
+            "/swagger/v1/swagger.json",
+            "LearnFlowERP API v1");
+
+        options.RoutePrefix = "swagger";
     });
-//}
+}
 
 app.UseHttpsRedirection();
 app.UseCors("AllowFrontend");
@@ -305,15 +329,31 @@ app.MapControllers();
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
+
     try
     {
-        var context = services.GetRequiredService<AppDbContext>();
+        var context =
+            services.GetRequiredService<AppDbContext>();
+
+        var logger =
+            services.GetRequiredService<ILogger<Program>>();
+
+        logger.LogInformation(
+            "Starting database migrations...");
+
         context.Database.Migrate();
+
+        logger.LogInformation(
+            "Database migrations completed.");
     }
     catch (Exception ex)
     {
-        var logger = services.GetRequiredService<ILogger<Program>>();
-        logger.LogError(ex, "An error occurred while executing runtime database migrations.");
+        var logger =
+            services.GetRequiredService<ILogger<Program>>();
+
+        logger.LogError(
+            ex,
+            "Database migration failed.");
     }
 }
 
