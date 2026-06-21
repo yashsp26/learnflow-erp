@@ -144,7 +144,13 @@ else
     builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         .AddJwtBearer(options =>
         {
-            var key = Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]!);
+            var jwtKey = builder.Configuration["Jwt:Key"];
+
+            if (string.IsNullOrWhiteSpace(jwtKey))
+                throw new InvalidOperationException(
+                    "Jwt:Key is missing.");
+
+            var key = Encoding.UTF8.GetBytes(jwtKey);
 
             options.TokenValidationParameters = new TokenValidationParameters
             {
@@ -203,7 +209,6 @@ builder.Services.AddSingleton<IAuthorizationPolicyProvider, PermissionPolicyProv
 // Validators
 
 builder.Services.AddValidatorsFromAssembly(typeof(ApplicationAssemblyMarker).Assembly);
-builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
 
 // JSON Serialization
 builder.Services.Configure<JsonOptions>(options =>
@@ -228,12 +233,16 @@ builder.Services.AddScoped<IPasswordHasher, PasswordHasher>();
 builder.Services.AddMemoryCache();
 builder.Services.AddScoped<IPermissionCacheService, PermissionCacheService>();
 
+builder.Services.AddHealthChecks();
 
 builder.Services.AddRateLimiter(options =>
 {
     options.AddPolicy("LoginPolicy", context =>
         RateLimitPartition.GetFixedWindowLimiter(
-            partitionKey: context.Request.Headers["X-Forwarded-For"].ToString() ?? "global",
+            partitionKey:
+                context.Request.Headers["X-Forwarded-For"].FirstOrDefault()
+                ?? context.Connection.RemoteIpAddress?.ToString()
+                ?? "global",
             factory: _ => new FixedWindowRateLimiterOptions
             {
                 PermitLimit = 5,              // max 5 requests
@@ -250,17 +259,14 @@ builder.Services.AddSingleton<IFileStorageService, SupabaseFileStorageService>()
 
 // Serilog
 
-Log.Logger = new LoggerConfiguration()
-    .Enrich.FromLogContext()
-    .Enrich.WithThreadId()
-    .Enrich.WithMachineName()
-    .WriteTo.Console(outputTemplate:
-        "[{Timestamp:HH:mm:ss} {Level:u3}] [CorrId: {CorrelationId}] {Message:lj}{NewLine}{Exception}")
-    .CreateLogger();
-
-builder.Host.UseSerilog();
-
-builder.Services.AddHttpContextAccessor();
+builder.Host.UseSerilog((ctx, lc) =>
+{
+    lc.Enrich.FromLogContext()
+      .Enrich.WithThreadId()
+      .Enrich.WithMachineName()
+      .WriteTo.Console(outputTemplate:
+          "[{Timestamp:HH:mm:ss} {Level:u3}] [CorrId: {CorrelationId}] {Message:lj}{NewLine}{Exception}");
+});
 
 builder.Services.AddTransient<CorrelationIdHandler>();
 
@@ -325,6 +331,8 @@ app.UseAuthorization();
 
 app.MapControllers();
 
+app.MapHealthChecks("/health");
+
 // --- AUTOMATIC DATABASE MIGRATION ON CONTAINER STARTUP ---
 using (var scope = app.Services.CreateScope())
 {
@@ -338,13 +346,19 @@ using (var scope = app.Services.CreateScope())
         var logger =
             services.GetRequiredService<ILogger<Program>>();
 
-        logger.LogInformation(
-            "Starting database migrations...");
+        if (app.Environment.IsDevelopment() ||app.Environment.IsStaging())
+        {
+            logger.LogInformation("Starting database migrations...");
 
-        context.Database.Migrate();
+            context.Database.Migrate();
 
-        logger.LogInformation(
-            "Database migrations completed.");
+            logger.LogInformation("Database migrations completed.");
+        }
+        else
+        {
+            logger.LogInformation(
+                "Skipping automatic migrations in production.");
+        }
     }
     catch (Exception ex)
     {
