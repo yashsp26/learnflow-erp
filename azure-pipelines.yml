@@ -19,6 +19,12 @@ variables:
   - name: frontendPath
     value: 'learnflowerp-frontend'
 
+  - name: backendImage
+    value: 'yashpatil2606/learnflowerp-backend-api'
+
+  - name: frontendImage
+    value: 'yashpatil2606/learnflowerp-frontend'
+
 stages:
 
 # ==========================
@@ -278,3 +284,83 @@ stages:
         - script: |
             docker compose build
           displayName: 'Build Docker Images'
+
+# ==========================
+# DOCKER PUSH
+# ==========================
+- stage: DockerPush
+  displayName: 'Build & Push Docker Images'
+
+  dependsOn:
+    - DockerValidation
+
+  condition: and(
+      succeeded(),
+      eq(variables['Build.SourceBranch'], 'refs/heads/master')
+    )
+
+  jobs:
+    - job: DockerPush
+      displayName: 'Push Backend & Frontend Images'
+
+      pool:
+        vmImage: 'ubuntu-latest'
+
+      steps:
+
+        - checkout: self
+          fetchDepth: 0
+
+        - bash: |
+            SHORT_SHA=$(echo $(Build.SourceVersion) | cut -c1-7)
+
+            echo "Short SHA: $SHORT_SHA"
+
+            echo "##vso[task.setvariable variable=SHORT_SHA]$SHORT_SHA"
+          displayName: 'Generate Short SHA'
+
+        - task: Docker@2
+          displayName: 'Docker Hub Login'
+          inputs:
+            command: login
+            containerRegistry: 'DockerHubConnection'
+
+        # Backend
+
+        - task: Docker@2
+          displayName: 'Build & Push Backend'
+          inputs:
+            command: buildAndPush
+            repository: $(backendImage)
+            dockerfile: 'backend/LearnFlowERP.Api/Dockerfile'
+            buildContext: '$(Build.SourcesDirectory)'
+            containerRegistry: 'DockerHubConnection'
+            tags: |
+              latest
+              $(SHORT_SHA)
+
+        # Frontend
+
+        - task: Docker@2
+          displayName: 'Build & Push Frontend'
+          inputs:
+            command: buildAndPush
+            repository: $(frontendImage)
+            dockerfile: 'learnflowerp-frontend/Dockerfile'
+            buildContext: 'learnflowerp-frontend'
+            containerRegistry: 'DockerHubConnection'
+            tags: |
+              latest
+              $(SHORT_SHA)
+
+        - bash: |
+            echo "Backend:"
+            echo "$(backendImage):latest"
+            echo "$(backendImage):$(SHORT_SHA)"
+
+            echo ""
+
+            echo "Frontend:"
+            echo "$(frontendImage):latest"
+            echo "$(frontendImage):$(SHORT_SHA)"
+          displayName: 'Summary'
