@@ -346,20 +346,20 @@ using (var scope = app.Services.CreateScope())
         var logger =
             services.GetRequiredService<ILogger<Program>>();
 
-        //if (app.Environment.IsDevelopment() ||app.Environment.IsStaging())
-        //{
+        if (app.Environment.IsDevelopment() || app.Environment.IsStaging())
+        {
             logger.LogInformation("Starting database migrations...");
 
             context.Database.Migrate();
 
             logger.LogInformation("Database migrations completed.");
-        //}
-        //else
-        //{
-        //    logger.LogInformation(
-        //        "Skipping automatic migrations in production.");
-        //}
     }
+        else
+    {
+        logger.LogInformation(
+            "Skipping automatic migrations in production.");
+    }
+}
     catch (Exception ex)
     {
         var logger =
