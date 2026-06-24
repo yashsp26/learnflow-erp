@@ -7,6 +7,9 @@ pool:
   vmImage: 'windows-latest'
 
 variables:
+
+  - group: LearnFlowERP-Test
+
   - name: buildPlatform
     value: 'Any CPU'
 
