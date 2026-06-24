@@ -276,7 +276,7 @@ stages:
               -v $(Build.SourcesDirectory):/repo \
               ghcr.io/gitleaks/gitleaks:latest detect \
               --source=/repo \
-              --verbose
+              --no-git
           displayName: 'Run Gitleaks'
 
 # ==========================
