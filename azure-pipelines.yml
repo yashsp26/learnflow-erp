@@ -341,14 +341,12 @@ stages:
 # TRIVYSCAN
 # ==========================
 - stage: TrivyScan
-
   displayName: 'Container Security Scan'
 
   dependsOn:
     - DockerValidation
 
   jobs:
-
   - job: ScanImage
 
     pool:
@@ -366,22 +364,15 @@ stages:
       displayName: Build Scan Image
 
     - bash: |
-        sudo apt-get update
-        sudo apt-get install wget -y
-
-        wget https://github.com/aquasecurity/trivy/releases/download/v0.65.0/trivy_0.65.0_Linux-64bit.deb
-
-        sudo dpkg -i trivy_0.65.0_Linux-64bit.deb
-      displayName: Install Trivy
-
-    - bash: |
-        trivy image \
+        docker run --rm \
+          -v /var/run/docker.sock:/var/run/docker.sock \
+          aquasec/trivy:latest image \
           --severity HIGH,CRITICAL \
           --ignore-unfixed \
           --exit-code 1 \
           learnflow-scan:latest
       displayName: Run Trivy
-
+      
 # ==========================
 # DOCKER PUSH
 # ==========================
