@@ -7,9 +7,6 @@ pool:
   vmImage: 'windows-latest'
 
 variables:
-
-  - group: LearnFlowERP-Test
-
   - name: buildPlatform
     value: 'Any CPU'
 
@@ -255,12 +252,67 @@ stages:
               npm audit --audit-level=high
 
 # ==========================
+# GITLEAKS
+# ==========================
+- stage: Gitleaks
+  displayName: 'Secret Scanning'
+
+  dependsOn:
+    - SecurityChecks
+
+  jobs:
+    - job: SecretScan
+
+      pool:
+        vmImage: 'ubuntu-latest'
+
+      steps:
+
+        - checkout: self
+          fetchDepth: 0
+
+        - bash: |
+            docker run --rm \
+              -v $(Build.SourcesDirectory):/repo \
+              ghcr.io/gitleaks/gitleaks:latest detect \
+              --source=/repo \
+              --verbose
+          displayName: 'Run Gitleaks'
+
+# ==========================
+# SEMGREP
+# ==========================
+- stage: Semgrep
+  displayName: 'Code Security Scan'
+
+  dependsOn:
+    - Gitleaks
+
+  jobs:
+
+  - job: ScanCode
+
+    pool:
+      vmImage: ubuntu-latest
+
+    steps:
+
+    - checkout: self
+
+    - bash: |
+        pip install semgrep
+
+        semgrep scan \
+          --config auto
+      displayName: Run Semgrep
+
+# ==========================
 # DOCKER VALIDATION
 # ==========================
 - stage: DockerValidation
   displayName: 'Docker Validation'
   dependsOn:
-    - SecurityChecks
+    - Semgrep
 
   jobs:
     - job: DockerValidation
@@ -286,19 +338,18 @@ stages:
           displayName: 'Build Docker Images'
 
 # ==========================
-# DOCKER PUSH
+# TRIVYSCAN
 # ==========================
-- stage: DockerPush
-  displayName: 'Docker Push'
-  dependsOn: DockerValidation
+- stage: TrivyScan
 
-  condition: and(
-      succeeded(),
-      eq(variables['Build.SourceBranch'], 'refs/heads/master')
-    )
+  displayName: 'Container Security Scan'
+
+  dependsOn:
+    - DockerValidation
 
   jobs:
-  - job: PushBackend
+
+  - job: ScanImage
 
     pool:
       vmImage: ubuntu-latest
@@ -306,35 +357,94 @@ stages:
     steps:
 
     - checkout: self
-      fetchDepth: 0
 
     - bash: |
-        SHORT_SHA=$(echo $(Build.SourceVersion) | cut -c1-7)
-        echo "##vso[task.setvariable variable=SHORT_SHA]$SHORT_SHA"
-      displayName: Generate SHA
-
-    - task: Docker@2
-      displayName: Docker Login
-      inputs:
-        command: login
-        containerRegistry: DockerHubConnection
-
-    - task: Docker@2
-      displayName: Build & Push Backend
-      inputs:
-        command: buildAndPush
-        repository: $(backendImage)
-        dockerfile: backend/LearnFlowERP.Api/Dockerfile
-        buildContext: $(Build.SourcesDirectory)
-        containerRegistry: DockerHubConnection
-        tags: |
-          latest
-          $(SHORT_SHA)
+        docker build \
+          -f backend/LearnFlowERP.Api/Dockerfile \
+          -t learnflow-scan:latest \
+          .
+      displayName: Build Scan Image
 
     - bash: |
-        echo "$(backendImage):latest"
-        echo "$(backendImage):$(SHORT_SHA)"
-      displayName: Summary
+        sudo apt-get update
+        sudo apt-get install wget -y
+
+        wget https://github.com/aquasecurity/trivy/releases/download/v0.65.0/trivy_0.65.0_Linux-64bit.deb
+
+        sudo dpkg -i trivy_0.65.0_Linux-64bit.deb
+      displayName: Install Trivy
+
+    - bash: |
+        trivy image \
+          --severity HIGH,CRITICAL \
+          --ignore-unfixed \
+          --exit-code 1 \
+          learnflow-scan:latest
+      displayName: Run Trivy
+
+# ==========================
+# DOCKER PUSH
+# ==========================
+- stage: DockerPush
+  displayName: 'Build & Push Docker Images'
+
+  dependsOn:
+    - TrivyScan
+
+  condition: and(
+      succeeded(),
+      eq(variables['Build.SourceBranch'], 'refs/heads/master')
+    )
+
+  jobs:
+    - job: DockerPush
+      displayName: 'Push Backend Images'
+
+      pool:
+        vmImage: 'ubuntu-latest'
+
+      steps:
+
+        - checkout: self
+          fetchDepth: 0
+
+        - bash: |
+            SHORT_SHA=$(echo $(Build.SourceVersion) | cut -c1-7)
+
+            echo "Short SHA: $SHORT_SHA"
+
+            echo "##vso[task.setvariable variable=SHORT_SHA]$SHORT_SHA"
+          displayName: 'Generate Short SHA'
+
+        - task: Docker@2
+          displayName: 'Docker Hub Login'
+          inputs:
+            command: login
+            containerRegistry: 'DockerHubConnection'
+
+        # Backend
+
+        - task: Docker@2
+          displayName: 'Build & Push Backend'
+          inputs:
+            command: buildAndPush
+            repository: $(backendImage)
+            dockerfile: 'backend/LearnFlowERP.Api/Dockerfile'
+            buildContext: '$(Build.SourcesDirectory)'
+            containerRegistry: 'DockerHubConnection'
+            tags: |
+              latest
+              $(SHORT_SHA)
+
+
+        - bash: |
+            echo "Backend:"
+            echo "$(backendImage):latest"
+            echo "$(backendImage):$(SHORT_SHA)"
+
+            echo ""
+
+          displayName: 'Summary'
 
 # ==========================
 # DEPLOY BACKEND
@@ -345,7 +455,7 @@ stages:
   dependsOn: DockerPush
 
   condition: and(
-      succeeded(),
+    succeeded(),
       eq(variables['Build.SourceBranch'], 'refs/heads/master')
     )
 
