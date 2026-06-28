@@ -482,50 +482,68 @@ namespace LearnFlowERP.Infrastructure.Persistence.AppDbContext
 
             foreach (var entry in ChangeTracker.Entries())
             {
-                if (entry.Entity is AuditLog)
-                    continue;
-
-                if (entry.State == EntityState.Added ||
-                    entry.State == EntityState.Modified ||
-                    entry.State == EntityState.Deleted)
+                // Skip infrastructure entities
+                if (entry.Entity is AuditLog ||
+                    entry.Entity is RefreshToken ||
+                    entry.Entity is UserNotification ||
+                    entry.Entity is UserDevice ||
+                    entry.Entity is PasswordResetOtp)
                 {
-                    var audit = new AuditLog
-                    {
-                        TableName = entry.Entity.GetType().Name,
-                        Action = entry.State.ToString(),
-                        TenantId = tenantId,
-                        UserId = userId,
-                        CreatedAt = DateTime.Now,
-                        CorrelationId = correlationId
-                    };
-
-                    var key = entry.Properties.FirstOrDefault(p => p.Metadata.IsPrimaryKey());
-
-                    if (key?.CurrentValue != null)
-                        audit.RecordId = Convert.ToInt64(key.CurrentValue);
-
-                    var excluded = new[] { "PasswordHash", "Password", "RefreshToken", "SecurityStamp" };
-
-                    if (entry.State != EntityState.Added)
-                    {
-                        audit.OldValues = System.Text.Json.JsonSerializer.Serialize(
-                            entry.OriginalValues.Properties
-                                .Where(p => !excluded.Contains(p.Name))
-                                .ToDictionary(p => p.Name, p => entry.OriginalValues[p])
-                        );
-                    }
-
-                    if (entry.State != EntityState.Deleted)
-                    {
-                        audit.NewValues = System.Text.Json.JsonSerializer.Serialize(
-                            entry.CurrentValues.Properties
-                                .Where(p => !excluded.Contains(p.Name))
-                                .ToDictionary(p => p.Name, p => entry.CurrentValues[p])
-                        );
-                    }
-
-                    auditEntries.Add(audit);
+                    continue;
                 }
+
+                if (entry.State != EntityState.Added &&
+                    entry.State != EntityState.Modified &&
+                    entry.State != EntityState.Deleted)
+                {
+                    continue;
+                }
+
+                var audit = new AuditLog
+                {
+                    TableName = entry.Entity.GetType().Name,
+                    Action = entry.State.ToString(),
+                    TenantId = tenantId,
+                    UserId = userId,
+                    CreatedAt = DateTime.UtcNow,
+                    CorrelationId = correlationId
+                };
+
+                var key = entry.Properties
+                    .FirstOrDefault(p => p.Metadata.IsPrimaryKey());
+
+                if (key?.CurrentValue != null)
+                    audit.RecordId = Convert.ToInt64(key.CurrentValue);
+
+                var excluded = new[]
+                {
+                    "PasswordHash",
+                    "Password",
+                    "RefreshToken",
+                    "SecurityStamp"
+                };
+
+                if (entry.State != EntityState.Added)
+                {
+                    audit.OldValues = System.Text.Json.JsonSerializer.Serialize(
+                        entry.OriginalValues.Properties
+                            .Where(p => !excluded.Contains(p.Name))
+                            .ToDictionary(
+                                p => p.Name,
+                                p => entry.OriginalValues[p]));
+                }
+
+                if (entry.State != EntityState.Deleted)
+                {
+                    audit.NewValues = System.Text.Json.JsonSerializer.Serialize(
+                        entry.CurrentValues.Properties
+                            .Where(p => !excluded.Contains(p.Name))
+                            .ToDictionary(
+                                p => p.Name,
+                                p => entry.CurrentValues[p]));
+                }
+
+                auditEntries.Add(audit);
             }
 
             var result = await base.SaveChangesAsync(cancellationToken);

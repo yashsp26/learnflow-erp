@@ -1,9 +1,9 @@
 ﻿using LearnFlowERP.Application.Common.Interfaces;
 using LearnFlowERP.Application.Features.Auth.Commands.DTOs;
-using LearnFlowERP.Domain.Entities;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
+using System.Diagnostics;
 
 namespace LearnFlowERP.Application.Features.Auth.Commands.Login
 {
@@ -31,9 +31,12 @@ namespace LearnFlowERP.Application.Features.Auth.Commands.Login
             LoginCommand request,
             CancellationToken cancellationToken)
         {
-            var email = request.Email.ToLower();
+            var stopwatch = Stopwatch.StartNew();
 
-            Console.WriteLine($"TenantCode Received: '{request.TenantCode}'");
+            var email = request.Email.Trim();
+
+            Console.WriteLine(
+                $"[LOGIN] Started - {stopwatch.ElapsedMilliseconds} ms");
 
             var tenant = await _cache.GetOrCreateAsync(
                 $"tenant_{request.TenantCode}",
@@ -49,17 +52,29 @@ namespace LearnFlowERP.Application.Features.Auth.Commands.Login
                             cancellationToken);
                 });
 
-            Console.WriteLine($"TenantCode = '{request.TenantCode}'");
+            Console.WriteLine(
+                $"[LOGIN] Tenant Lookup - {stopwatch.ElapsedMilliseconds} ms");
 
             if (tenant == null)
-                throw new InvalidOperationException("Invalid tenant");
+                throw new InvalidOperationException(
+                    "Invalid tenant");
 
             var user = await _context.Users
-                .Include(u => u.UserRoles)
-                .FirstOrDefaultAsync(
-                    u => u.Email.ToLower() == email &&
-                         u.TenantId == tenant.TenantId,
+                .AsNoTracking()
+                .Select(x => new
+                {
+                    User = x,
+                    RoleId = x.UserRoles
+                        .Select(r => r.RoleId)
+                        .FirstOrDefault()
+                })
+                .FirstOrDefaultAsync(x =>
+                    x.User.Email == email &&
+                    x.User.TenantId == tenant.TenantId,
                     cancellationToken);
+
+            Console.WriteLine(
+                $"[LOGIN] User Lookup - {stopwatch.ElapsedMilliseconds} ms");
 
             if (user == null)
                 throw new UnauthorizedAccessException(
@@ -68,24 +83,32 @@ namespace LearnFlowERP.Application.Features.Auth.Commands.Login
             var isValid =
                 _hasher.Verify(
                     request.Password,
-                    user.PasswordHash);
+                    user.User.PasswordHash);
+
+            Console.WriteLine(
+                $"[LOGIN] Password Verify - {stopwatch.ElapsedMilliseconds} ms");
 
             if (!isValid)
                 throw new UnauthorizedAccessException(
                     "Invalid credentials");
 
             var accessToken =
-                await _tokenService.GenerateTokenAsync(user);
+                _tokenService.GenerateToken(
+                    user.User,
+                    user.RoleId);
+
+            Console.WriteLine(
+                $"[LOGIN] Token Generation - {stopwatch.ElapsedMilliseconds} ms");
 
             var refreshTokenValue =
                 _tokenService.GenerateRefreshToken();
 
             var refreshToken = new RefreshToken
             {
-                UserId = user.UserId,
-                TenantId = user.TenantId,
+                UserId = user.User.UserId,
+                TenantId = user.User.TenantId,
                 Token = refreshTokenValue,
-                ExpiresAt = DateTime.Now.AddDays(7),
+                ExpiresAt = DateTime.UtcNow.AddDays(7),
                 IsRevoked = false
             };
 
@@ -94,12 +117,18 @@ namespace LearnFlowERP.Application.Features.Auth.Commands.Login
             await _context.SaveChangesAsync(
                 cancellationToken);
 
+            Console.WriteLine(
+                $"[LOGIN] SaveChanges - {stopwatch.ElapsedMilliseconds} ms");
+
+            Console.WriteLine(
+                $"[LOGIN] TOTAL - {stopwatch.ElapsedMilliseconds} ms");
+
             return new AuthResponseDto
             {
                 Token = accessToken,
                 RefreshToken = refreshTokenValue,
-                UserId = user.UserId,
-                Email = user.Email
+                UserId = user.User.UserId,
+                Email = user.User.Email
             };
         }
     }

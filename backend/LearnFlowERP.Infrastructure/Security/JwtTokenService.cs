@@ -16,49 +16,50 @@ namespace LearnFlowERP.Infrastructure.Security
 {
     public class JwtTokenService : ITokenService
     {
-        private readonly IConfiguration _config;
+        private readonly JwtSecurityTokenHandler _handler;
+        private readonly SigningCredentials _credentials;
+        private readonly string _issuer;
+        private readonly string _audience;
 
         public JwtTokenService(IConfiguration config)
         {
-            _config = config;
-        }
+            _handler = new JwtSecurityTokenHandler();
 
-        public async Task<string> GenerateTokenAsync(User user)
-        {
             var key = new SymmetricSecurityKey(
-                Encoding.UTF8.GetBytes(_config["Jwt:Key"]!));
+                Encoding.UTF8.GetBytes(config["Jwt:Key"]!));
 
-            var creds = new SigningCredentials(
+            _credentials = new SigningCredentials(
                 key,
                 SecurityAlgorithms.HmacSha256);
 
-            var role =
-                user.UserRoles.FirstOrDefault()
-                ?? throw new NotFoundException("User role not found");
+            _issuer = config["Jwt:Issuer"]!;
+            _audience = config["Jwt:Audience"]!;
+        }
 
+        public string GenerateToken(User user, long roleId)
+        {
             var claims = new List<Claim>
-            {
-                new Claim("UserId", user.UserId.ToString()),
-                new Claim("TenantId", user.TenantId.ToString()),
-                new Claim("UserType", user.UserType.ToString()),
-                new Claim("RoleId", role.RoleId.ToString())
-            };
+        {
+            new("UserId", user.UserId.ToString()),
+            new("TenantId", user.TenantId.ToString()),
+            new("UserType", user.UserType.ToString()),
+            new("RoleId", roleId.ToString())
+        };
 
             var token = new JwtSecurityToken(
-                issuer: _config["Jwt:Issuer"],
-                audience: _config["Jwt:Audience"],
+                issuer: _issuer,
+                audience: _audience,
                 claims: claims,
-                expires: DateTime.Now.AddMinutes(15),
-                signingCredentials: creds
-            );
+                expires: DateTime.UtcNow.AddMinutes(15),
+                signingCredentials: _credentials);
 
-            return new JwtSecurityTokenHandler()
-                .WriteToken(token);
+            return _handler.WriteToken(token);
         }
 
         public string GenerateRefreshToken()
         {
-            return Convert.ToBase64String(RandomNumberGenerator.GetBytes(64));
+            return Convert.ToBase64String(
+                RandomNumberGenerator.GetBytes(64));
         }
     }
 }

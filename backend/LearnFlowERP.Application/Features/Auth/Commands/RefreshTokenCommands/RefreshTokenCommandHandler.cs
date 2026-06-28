@@ -23,48 +23,62 @@ namespace LearnFlowERP.Application.Features.Auth.Commands.RefreshTokenCommands
             RefreshTokenCommand request,
             CancellationToken cancellationToken)
         {
-            var token = await _context.RefreshTokens
-                .Include(r => r.User)
-                    .ThenInclude(u => u.UserRoles)
-                .FirstOrDefaultAsync(
-                    r => r.Token == request.RefreshToken
-                      && !r.IsRevoked
-                      && r.ExpiresAt > DateTime.Now,
-                    cancellationToken);
+            var refreshToken = await _context.RefreshTokens
+                .AsNoTracking()
+                .Where(x =>
+                    x.Token == request.RefreshToken &&
+                    !x.IsRevoked &&
+                    x.ExpiresAt > DateTime.UtcNow)
+                .Select(x => new
+                {
+                    RefreshToken = x,
+                    User = x.User,
+                    RoleId = x.User.UserRoles
+                        .Select(r => r.RoleId)
+                        .FirstOrDefault()
+                })
+                .FirstOrDefaultAsync(cancellationToken);
 
-            if (token == null)
+            if (refreshToken == null)
                 throw new UnauthorizedAccessException(
                     "Invalid refresh token");
 
-            token.IsRevoked = true;
+            // Revoke old token
+            var existingToken = await _context.RefreshTokens
+                .FirstAsync(
+                    x => x.RefreshTokenId ==
+                         refreshToken.RefreshToken.RefreshTokenId,
+                    cancellationToken);
 
-            var newAccessToken =
-                await _tokenService.GenerateTokenAsync(
-                    token.User);
+            existingToken.IsRevoked = true;
+
+            var accessToken =
+                _tokenService.GenerateToken(
+                    refreshToken.User,
+                    refreshToken.RoleId);
 
             var newRefreshToken =
                 _tokenService.GenerateRefreshToken();
 
-            var refreshTokenEntity = new RefreshToken
-            {
-                UserId = token.UserId,
-                TenantId = token.TenantId,
-                Token = newRefreshToken,
-                ExpiresAt = DateTime.Now.AddDays(7),
-                IsRevoked = false
-            };
-
-            _context.RefreshTokens.Add(refreshTokenEntity);
+            _context.RefreshTokens.Add(
+                new RefreshToken
+                {
+                    UserId = refreshToken.User.UserId,
+                    TenantId = refreshToken.User.TenantId,
+                    Token = newRefreshToken,
+                    ExpiresAt = DateTime.UtcNow.AddDays(7),
+                    IsRevoked = false
+                });
 
             await _context.SaveChangesAsync(
                 cancellationToken);
 
             return new AuthResponseDto
             {
-                Token = newAccessToken,
+                Token = accessToken,
                 RefreshToken = newRefreshToken,
-                UserId = token.User.UserId,
-                Email = token.User.Email
+                UserId = refreshToken.User.UserId,
+                Email = refreshToken.User.Email
             };
         }
     }
