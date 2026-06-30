@@ -9,7 +9,7 @@ namespace LearnFlowERP.Application.Common.Interfaces
 {
     public interface ITokenService
     {
-        Task<string> GenerateTokenAsync(User user);
+        string GenerateToken(User user, long roleId);
         string GenerateRefreshToken();
     }
 }
