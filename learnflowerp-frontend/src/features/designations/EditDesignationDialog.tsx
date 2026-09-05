@@ -47,7 +47,7 @@ export default function EditDesignationDialog({
           );
 
         setName(
-          response.Data.name
+          response.data.name
         );
       };
 

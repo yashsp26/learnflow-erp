@@ -61,7 +61,7 @@ export default function DesignationsPage() {
         await getDesignationsApi();
 
       setDesignations(
-        response.Data ?? []
+        response.data ?? []
       );
     } catch {
       toast.error(

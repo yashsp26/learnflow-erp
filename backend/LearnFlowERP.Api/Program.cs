@@ -60,10 +60,9 @@ builder.Services.AddScoped<IApplicationDbContext>(provider =>
     provider.GetRequiredService<AppDbContext>());
 
 // CORS
-var allowedOrigins = builder.Configuration["Cors:AllowedOrigins"]?
-    .Split(',', StringSplitOptions.RemoveEmptyEntries)
-    .Select(x => x.Trim())
-    .ToArray()
+var allowedOrigins = builder.Configuration
+    .GetSection("Cors:AllowedOrigins")
+    .Get<string[]>()
     ?? Array.Empty<string>();
 
 builder.Services.AddCors(options =>

@@ -46,9 +46,9 @@ export default function RolePermissionsTab() {
 
         const permissionsResponse = await getPermissionsApi();
 
-        setRoles(rolesResponse.Data ?? []);
+        setRoles(rolesResponse.data ?? []);
 
-        setPermissions(permissionsResponse.Data ?? []);
+        setPermissions(permissionsResponse.data ?? []);
       } catch {
         toast.error("Failed to load roles");
       }
@@ -60,7 +60,7 @@ export default function RolePermissionsTab() {
   const loadRolePermissions = async (roleId: number) => {
     const response = await getRolePermissionsApi(roleId);
 
-    setAssignedPermissions(response.Data ?? []);
+    setAssignedPermissions(response.data ?? []);
   };
 
   return (

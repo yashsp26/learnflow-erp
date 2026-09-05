@@ -44,7 +44,7 @@ export default function UserDetailsDialog({
           );
 
         setUser(
-          response.Data ??
+          response.data ??
             response
         );
       } catch {

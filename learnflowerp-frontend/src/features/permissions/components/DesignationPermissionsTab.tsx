@@ -48,9 +48,9 @@ export default function DesignationPermissionsTab() {
           getPermissionsApi(),
         ]);
 
-        setDesignations(designationsResponse.Data ?? []);
+        setDesignations(designationsResponse.data ?? []);
 
-        setPermissions(permissionsResponse.Data ?? []);
+        setPermissions(permissionsResponse.data ?? []);
       } catch {
         toast.error("Failed to load data");
       }
@@ -62,7 +62,7 @@ export default function DesignationPermissionsTab() {
   const loadPermissions = async (designationId: number) => {
     const response = await getDesignationPermissionsApi(designationId);
 
-    setAssignedPermissions(response.Data ?? []);
+    setAssignedPermissions(response.data ?? []);
   };
 
   return (

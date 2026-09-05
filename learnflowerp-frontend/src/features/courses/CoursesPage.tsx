@@ -74,7 +74,7 @@ export default function CoursesPage() {
         );
 
       setCourses(
-        response.Data?.items ?? []
+        response.data?.items ?? []
       );
     } catch {
       toast.error(
@@ -98,7 +98,7 @@ export default function CoursesPage() {
           );
 
         setCourses(
-          response.Data?.items ?? []
+          response.data?.items ?? []
         );
       } catch {
         toast.error(

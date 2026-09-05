@@ -5,9 +5,18 @@ import MenuIcon from "@mui/icons-material/Menu";
 import { Outlet } from "react-router-dom";
 import { useState } from "react";
 
+import { useEffect } from "react";
+
+import { useAppDispatch, useAppSelector } from "../../app/hooks";
+import { fetchMyPermissions } from "../../features/permissions/permissionsSlice";
+
 import Sidebar from "./Sidebar";
 
 export default function AppLayout() {
+  const dispatch = useAppDispatch();
+  const isAuthenticated = useAppSelector(
+    (state) => state.auth.isAuthenticated
+  );
   const [collapsed, setCollapsed] = useState(false);
 
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -16,10 +25,16 @@ export default function AppLayout() {
 
   const sidebarWidth = collapsed ? 90 : 250;
 
+  useEffect(() => {
+    if (isAuthenticated) {
+      void dispatch(fetchMyPermissions());
+    }
+  }, [dispatch, isAuthenticated]);
+
   return (
     <Box
       sx={{
-        backgroundColor: "#f5f3ee",
+        backgroundColor: "background.default",
         minHeight: "100vh",
         padding: {
           xs: 1,
@@ -30,10 +45,10 @@ export default function AppLayout() {
       <Box
         sx={{
           display: "flex",
-          backgroundColor: "#fcfbf8",
+          backgroundColor: "background.paper",
           borderRadius: {
-            xs: "16px",
-            md: "28px",
+            xs: 1,
+            md: 1.5,
           },
 
           height: {
@@ -41,7 +56,8 @@ export default function AppLayout() {
             md: "calc(100vh - 16px)",
           },
 
-          border: "1px solid #ece7df",
+          border: "1px solid",
+          borderColor: "divider",
           overflow: "hidden",
         }}
       >
@@ -58,7 +74,7 @@ export default function AppLayout() {
             slotProps={{
               paper: {
                 sx: {
-                  borderRadius: "0 20px 20px 0",
+                  borderRadius: "0 12px 12px 0",
                 },
               },
             }}
@@ -79,7 +95,7 @@ export default function AppLayout() {
 
             width: isMobile ? "100%" : `calc(100% - ${sidebarWidth}px)`,
 
-            padding: {
+              p: {
               xs: 2,
               md: 5,
             },
@@ -100,8 +116,8 @@ export default function AppLayout() {
             },
 
             "&::-webkit-scrollbar-thumb": {
-              backgroundColor: "#d1d5db",
-              borderRadius: "10px",
+              backgroundColor: "#CBD5E1",
+              borderRadius: 1,
             },
           }}
         >
@@ -117,11 +133,12 @@ export default function AppLayout() {
               <IconButton
                 onClick={() => setMobileOpen(true)}
                 sx={{
-                  backgroundColor: "#fff",
-                  border: "1px solid #ece7df",
+                  backgroundColor: "background.paper",
+                  border: "1px solid",
+                  borderColor: "divider",
 
                   "&:hover": {
-                    backgroundColor: "#fff1e6",
+                    backgroundColor: "primary.light",
                   },
                 }}
               >

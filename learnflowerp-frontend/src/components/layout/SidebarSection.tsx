@@ -25,7 +25,7 @@ export default function SidebarSection({
   return (
     <Box
       sx={{
-        marginTop: 2,
+        mt: 2.5,
       }}
     >
       <Box
@@ -38,13 +38,13 @@ export default function SidebarSection({
           justifyContent:
             "space-between",
           cursor: "pointer",
-          paddingX: 1,
+          px: 1,
         }}
       >
         <Typography
           sx={{
-            fontSize: "12px",
-            color: "#9ca3af",
+            fontSize: "0.6875rem",
+            color: "text.disabled",
             fontWeight: 700,
           }}
         >

@@ -7,6 +7,11 @@ namespace LearnFlowERP.Api.Middleware
 {
     public class ExceptionMiddleware
     {
+        private static readonly JsonSerializerOptions JsonOptions = new()
+        {
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+        };
+
         private readonly RequestDelegate _next;
         private readonly ILogger<ExceptionMiddleware> _logger;
 
@@ -77,7 +82,8 @@ namespace LearnFlowERP.Api.Middleware
             context.Response.ContentType = "application/json";
             context.Response.StatusCode = statusCode;
 
-            return context.Response.WriteAsync(JsonSerializer.Serialize(response));
+            return context.Response.WriteAsync(
+                JsonSerializer.Serialize(response, JsonOptions));
         }
     }
 }

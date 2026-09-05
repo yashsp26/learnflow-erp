@@ -19,12 +19,18 @@ type Props = {
   open: boolean;
   onClose: () => void;
   onSuccess: () => void;
+  defaultRoleId?: number;
+  title?: string;
+  onboardingMessage?: string;
 };
 
 export default function CreateUserDialog({
   open,
   onClose,
   onSuccess,
+  defaultRoleId = 1,
+  title = "Create User",
+  onboardingMessage,
 }: Props) {
   const [username, setUsername] =
     useState("");
@@ -33,7 +39,7 @@ export default function CreateUserDialog({
     useState("");
 
   const [roleId, setRoleId] =
-    useState(1);
+    useState(defaultRoleId);
 
   const [loading, setLoading] =
     useState(false);
@@ -70,7 +76,7 @@ export default function CreateUserDialog({
 
       setUsername("");
       setEmail("");
-      setRoleId(1);
+      setRoleId(defaultRoleId);
 
       onSuccess();
 
@@ -92,7 +98,7 @@ export default function CreateUserDialog({
       maxWidth="sm"
     >
       <DialogTitle>
-        Create User
+        {title}
       </DialogTitle>
 
       <DialogContent>
@@ -165,10 +171,7 @@ export default function CreateUserDialog({
                 "1px solid #fed7aa",
             }}
           >
-            A temporary password will
-            be generated automatically
-            and sent to the user's
-            email address.
+            {onboardingMessage ?? "A temporary password will be generated automatically and sent to the user's email address."}
           </Typography>
 
           <Button

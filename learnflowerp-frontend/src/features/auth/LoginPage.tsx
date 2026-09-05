@@ -40,7 +40,7 @@ export default function LoginPage() {
         );
 
       const tokenData =
-        response.Data.token;
+        response.data.token;
 
       localStorage.setItem(
         "token",
@@ -67,10 +67,10 @@ export default function LoginPage() {
         (error as {
           response?: {
             data?: {
-              Message?: string;
+              message?: string;
             };
           };
-        })?.response?.data?.Message ??
+        })?.response?.data?.message ??
           "Login failed"
       );
     } finally {

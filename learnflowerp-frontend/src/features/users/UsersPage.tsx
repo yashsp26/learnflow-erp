@@ -48,7 +48,7 @@ export default function UsersPage() {
 
       const response = await getUsersApi();
 
-      setUsers(response.Data ?? []);
+      setUsers(response.data ?? []);
     } catch {
       toast.error("Failed to fetch users");
     } finally {

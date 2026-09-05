@@ -4,6 +4,7 @@ import { useDispatch } from "react-redux";
 
 import { logoutApi } from "../../api/authApi";
 import { logout } from "../../features/auth/authSlice";
+import { clearPermissions } from "../../features/permissions/permissionsSlice";
 
 import { Box, IconButton, Typography, Avatar, Button } from "@mui/material";
 
@@ -65,6 +66,12 @@ export default function Sidebar({
       location.pathname.startsWith("/employee-attendance"),
   );
 
+  const [peopleOpen, setPeopleOpen] = useState(
+    location.pathname.startsWith("/users") ||
+      location.pathname.startsWith("/employees") ||
+      location.pathname.startsWith("/students"),
+  );
+
   const [financeOpen, setFinanceOpen] = useState(
     location.pathname.startsWith("/fees") ||
       location.pathname.startsWith("/payments") ||
@@ -99,6 +106,7 @@ const handleLogout = async () => {
   }
 
   dispatch(logout());
+  dispatch(clearPermissions());
 
   navigate("/");
 };
@@ -110,9 +118,10 @@ const handleLogout = async () => {
 
         transition: "all 0.3s ease",
 
-        backgroundColor: "#fff",
+        backgroundColor: "background.paper",
 
-        borderRight: "1px solid #ece7df",
+        borderRight: "1px solid",
+        borderColor: "divider",
 
         display: "flex",
         flexDirection: "column",
@@ -134,7 +143,8 @@ const handleLogout = async () => {
 
           padding: 2,
 
-          borderBottom: "1px solid #f3f4f6",
+          borderBottom: "1px solid",
+          borderColor: "divider",
         }}
       >
         {!collapsed && (
@@ -179,26 +189,24 @@ const handleLogout = async () => {
           closeMobileSidebar={closeMobileSidebar}
         />
 
-        <SidebarMenuItem
-          title="Users"
-          icon={<PersonOutlineOutlinedIcon />}
-          path="/users"
-          collapsed={collapsed}
-        />
-
-        <SidebarMenuItem
-          title="Employees"
-          icon={<BadgeOutlinedIcon />}
-          path="/employees"
-          collapsed={collapsed}
-        />
-
-        <SidebarMenuItem
-          title="Students"
-          icon={<SchoolOutlinedIcon />}
-          path="/students"
-          collapsed={collapsed}
-        />
+        {!collapsed && (
+          <SidebarSection
+            title="PEOPLE"
+            open={peopleOpen}
+            setOpen={setPeopleOpen}
+          >
+            <SidebarMenuItem title="Users" icon={<PersonOutlineOutlinedIcon />} path="/users" collapsed={collapsed} />
+            <SidebarMenuItem title="Employees" icon={<BadgeOutlinedIcon />} path="/employees" collapsed={collapsed} />
+            <SidebarMenuItem title="Students" icon={<SchoolOutlinedIcon />} path="/students" collapsed={collapsed} />
+          </SidebarSection>
+        )}
+        {collapsed && (
+          <>
+            <SidebarMenuItem title="Users" icon={<PersonOutlineOutlinedIcon />} path="/users" collapsed />
+            <SidebarMenuItem title="Employees" icon={<BadgeOutlinedIcon />} path="/employees" collapsed />
+            <SidebarMenuItem title="Students" icon={<SchoolOutlinedIcon />} path="/students" collapsed />
+          </>
+        )}
 
         {!collapsed && (
           <SidebarSection
@@ -372,7 +380,7 @@ const handleLogout = async () => {
             >
               <Avatar
                 sx={{
-                  backgroundColor: "#e86f00",
+                  backgroundColor: "primary.main",
                 }}
               >
                 A
@@ -389,8 +397,8 @@ const handleLogout = async () => {
 
                 <Typography
                   sx={{
-                    fontSize: "12px",
-                    color: "#6b7280",
+                    fontSize: "0.75rem",
+                    color: "text.secondary",
                   }}
                 >
                   {localStorage.getItem("userEmail") || "admin@learnflow.com"}

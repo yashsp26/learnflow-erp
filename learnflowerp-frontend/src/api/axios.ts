@@ -1,5 +1,33 @@
 import axios from "axios";
 
+type ApiEnvelope = {
+  success?: boolean;
+  data?: unknown;
+  message?: string;
+  Success?: boolean;
+  Data?: unknown;
+  Message?: string;
+};
+
+const normalizeApiEnvelope = (payload: unknown): unknown => {
+  if (!payload || typeof payload !== "object" || Array.isArray(payload)) {
+    return payload;
+  }
+
+  const envelope = payload as ApiEnvelope;
+
+  if (!("Data" in envelope || "Success" in envelope || "Message" in envelope)) {
+    return payload;
+  }
+
+  return {
+    ...envelope,
+    success: envelope.success ?? envelope.Success,
+    data: envelope.data ?? envelope.Data,
+    message: envelope.message ?? envelope.Message,
+  };
+};
+
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL,
 });
@@ -16,7 +44,10 @@ api.interceptors.request.use((config) => {
 });
 
 api.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    response.data = normalizeApiEnvelope(response.data);
+    return response;
+  },
 
   async (error) => {
     const originalRequest = error.config;
@@ -45,11 +76,14 @@ api.interceptors.response.use(
             }
           );
 
-        const newToken =
-          refreshResponse.data.token;
+        const refreshPayload = normalizeApiEnvelope(refreshResponse.data) as ApiEnvelope;
+        const tokenData = refreshPayload.data as {
+          token: { token: string; refreshToken: string };
+        };
 
-        const newRefreshToken =
-          refreshResponse.data.refreshToken;
+        const newToken = tokenData.token.token;
+
+        const newRefreshToken = tokenData.token.refreshToken;
 
         localStorage.setItem(
           "token",

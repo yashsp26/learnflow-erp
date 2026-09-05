@@ -25,16 +25,34 @@ namespace LearnFlowERP.Infrastructure.Security
         {
             _handler = new JwtSecurityTokenHandler();
 
+            var jwtKey = config["Jwt:Key"];
+            var issuer = config["Jwt:Issuer"];
+            var audience = config["Jwt:Audience"];
+
+            if (string.IsNullOrWhiteSpace(jwtKey))
+                throw new InvalidOperationException(
+                    "JWT configuration 'Jwt:Key' is missing.");
+
+            if (string.IsNullOrWhiteSpace(issuer))
+                throw new InvalidOperationException(
+                    "JWT configuration 'Jwt:Issuer' is missing.");
+
+            if (string.IsNullOrWhiteSpace(audience))
+                throw new InvalidOperationException(
+                    "JWT configuration 'Jwt:Audience' is missing.");
+
             var key = new SymmetricSecurityKey(
-                Encoding.UTF8.GetBytes(config["Jwt:Key"]!));
+                Encoding.UTF8.GetBytes(jwtKey));
 
             _credentials = new SigningCredentials(
                 key,
                 SecurityAlgorithms.HmacSha256);
 
-            _issuer = config["Jwt:Issuer"]!;
-            _audience = config["Jwt:Audience"]!;
+            _issuer = issuer;
+            _audience = audience;
+
         }
+
 
         public string GenerateToken(User user, long roleId)
         {

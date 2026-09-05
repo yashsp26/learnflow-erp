@@ -42,7 +42,7 @@ export default function DesignationDetailsDialog({
           );
 
         setDesignation(
-          response.Data
+          response.data
         );
       };
 

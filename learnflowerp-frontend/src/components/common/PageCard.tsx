@@ -14,12 +14,10 @@ export default function PageCard({
     <Card
       elevation={0}
       sx={{
-        borderRadius: "20px",
-        border:
-          "1px solid #ece7df",
+        height: "100%",
       }}
     >
-      <CardContent>
+      <CardContent sx={{ p: { xs: 2, md: 3 }, "&:last-child": { pb: { xs: 2, md: 3 } } }}>
         {children}
       </CardContent>
     </Card>

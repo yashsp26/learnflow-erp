@@ -20,23 +20,24 @@ export default function PageHeader({
         display: "flex",
         justifyContent:
           "space-between",
-        alignItems: "center",
-        mb: 3,
+        alignItems: { xs: "flex-start", sm: "center" },
+        gap: 2,
+        flexWrap: "wrap",
+        mb: 4,
       }}
     >
       <Box>
         <Typography
-          variant="h4"
-          sx={{
-            fontWeight: 700,
-          }}
+          variant="h3"
         >
           {title}
         </Typography>
 
         {subtitle && (
           <Typography
+            variant="body2"
             color="text.secondary"
+            sx={{ mt: 0.5 }}
           >
             {subtitle}
           </Typography>

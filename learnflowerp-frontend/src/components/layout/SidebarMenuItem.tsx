@@ -36,22 +36,19 @@ export default function SidebarMenuItem({
       sx={{
         display: "flex",
         alignItems: "center",
-        gap: 2,
-        padding: "12px 14px",
-        borderRadius: "14px",
+        gap: 1.5,
+        px: 1.5,
+        py: 1.25,
+        borderRadius: 1,
         cursor: "pointer",
-
-        backgroundColor: active
-          ? "#fff1e6"
-          : "transparent",
-
-        color: active
-          ? "#e86f00"
-          : "#7c4a21",
+        borderLeft: "3px solid",
+        borderLeftColor: active ? "primary.main" : "transparent",
+        backgroundColor: active ? "primary.light" : "transparent",
+        color: active ? "primary.main" : "text.secondary",
 
         "&:hover": {
-          backgroundColor: "#fff1e6",
-          color: "#e86f00",
+          backgroundColor: "action.hover",
+          color: "primary.main",
         },
       }}
     >
@@ -60,10 +57,8 @@ export default function SidebarMenuItem({
       {!collapsed && (
         <Typography
           sx={{
-            fontWeight: active
-              ? 700
-              : 600,
-            fontSize: "15px",
+            fontWeight: active ? 700 : 550,
+            fontSize: "0.875rem",
           }}
         >
           {title}

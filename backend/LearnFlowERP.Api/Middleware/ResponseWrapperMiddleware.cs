@@ -3,8 +3,13 @@ using LearnFlowERP.Application.Common.Models;
 
 namespace LearnFlowERP.Api.Middleware
 {
-    public class ResponseWrapperMiddleware
-    {
+public class ResponseWrapperMiddleware
+{
+        private static readonly JsonSerializerOptions JsonOptions = new()
+        {
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+        };
+
         private readonly RequestDelegate _next;
 
         public ResponseWrapperMiddleware(RequestDelegate next)
@@ -76,7 +81,8 @@ namespace LearnFlowERP.Api.Middleware
                     context.Response.Body = originalBodyStream;
                     context.Response.ContentType = "application/json";
 
-                    await context.Response.WriteAsync(JsonSerializer.Serialize(emptyResponse));
+                    await context.Response.WriteAsync(
+                        JsonSerializer.Serialize(emptyResponse, JsonOptions));
                     return;
                 }
 
@@ -98,7 +104,9 @@ namespace LearnFlowERP.Api.Middleware
                     parsedJson.Value.ValueKind == JsonValueKind.Object &&
                     parsedJson.Value.TryGetProperty("success", out _))
                 {
-                    var dict = JsonSerializer.Deserialize<Dictionary<string, object>>(bodyText)!;
+                    var dict = JsonSerializer.Deserialize<Dictionary<string, object>>(
+                        bodyText,
+                        JsonOptions)!;
                     dict["correlationId"] = correlationId;
                     finalResponse = dict;
                 }
@@ -141,7 +149,8 @@ namespace LearnFlowERP.Api.Middleware
                 context.Response.Body = originalBodyStream;
                 context.Response.ContentType = "application/json";
 
-                await context.Response.WriteAsync(JsonSerializer.Serialize(finalResponse));
+                await context.Response.WriteAsync(
+                    JsonSerializer.Serialize(finalResponse, JsonOptions));
             }
             finally
             {
